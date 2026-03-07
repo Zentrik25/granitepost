@@ -14,11 +14,11 @@ export function LatestFeed({ articles, hasMore = false, currentPage = 1 }: Lates
 
   return (
     <section aria-label="Latest news">
-      <div className="flex items-center justify-between border-b-2 border-brand-red pb-2 mb-4">
+      <div className="flex items-center justify-between border-b-2 border-granite-primary pb-2 mb-4">
         <h2 className="text-sm font-black uppercase tracking-widest">Latest News</h2>
         <Link
           href="/search"
-          className="text-xs font-semibold text-brand-red hover:underline"
+          className="text-xs font-semibold text-granite-primary hover:underline"
         >
           All articles &rarr;
         </Link>
@@ -34,7 +34,7 @@ export function LatestFeed({ articles, hasMore = false, currentPage = 1 }: Lates
         <div className="text-center mt-6">
           <Link
             href={`/?page=${currentPage + 1}`}
-            className="inline-block px-6 py-2.5 border-2 border-brand-dark text-sm font-bold hover:bg-brand-dark hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 px-7 py-2.5 rounded-full bg-granite-gradient text-white text-sm font-bold shadow-md hover:shadow-lg hover:brightness-110 transition-all"
           >
             Load more
           </Link>

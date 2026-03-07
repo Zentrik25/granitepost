@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { ArticleCard } from '@/components/ui/ArticleCard'
+import { Pagination } from '@/components/ui/Pagination'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { searchArticles } from '@/lib/queries/articles'
 
 export const dynamic = 'force-dynamic'
@@ -23,24 +25,24 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-black mb-4 border-b-2 border-brand-red pb-3">
+      <h1 className="text-2xl font-black mb-4 border-b-2 border-granite-primary pb-3">
         Search
       </h1>
 
       {/* Search form */}
       <form method="GET" action="/search" className="mb-6">
-        <div className="flex gap-2 max-w-lg">
+        <div className="flex max-w-lg">
           <input
             type="search"
             name="q"
             defaultValue={q}
             placeholder="Search articles..."
-            className="flex-1 border border-brand-border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+            className="flex-1 border border-granite-muted px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-granite-primary rounded-l-full"
             minLength={2}
           />
           <button
             type="submit"
-            className="px-5 py-2 bg-brand-red text-white text-sm font-bold hover:bg-red-700"
+            className="px-6 py-2.5 bg-granite-gradient text-white text-sm font-bold hover:brightness-110 transition-all rounded-r-full"
           >
             Search
           </button>
@@ -60,29 +62,18 @@ export default async function SearchPage({ searchParams }: Props) {
           ))}
         </div>
       ) : q.trim().length >= 2 ? (
-        <p className="text-brand-muted">No results found. Try different keywords.</p>
+        <EmptyState
+          title="No results found"
+          description={`We couldn't find any articles matching "${q}". Try different keywords.`}
+          action={{ label: 'Back to home', href: '/' }}
+        />
       ) : null}
 
-      {(result.hasMore || page > 1) && (
-        <div className="flex gap-3 justify-center mt-8">
-          {page > 1 && (
-            <a
-              href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}
-              className="px-4 py-2 border border-brand-border text-sm font-semibold hover:bg-brand-gray"
-            >
-              &larr; Previous
-            </a>
-          )}
-          {result.hasMore && (
-            <a
-              href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}
-              className="px-4 py-2 border border-brand-border text-sm font-semibold hover:bg-brand-gray"
-            >
-              Next &rarr;
-            </a>
-          )}
-        </div>
-      )}
+      <Pagination
+        page={page}
+        hasMore={result.hasMore}
+        buildHref={(p) => `/search?q=${encodeURIComponent(q)}&page=${p}`}
+      />
     </div>
   )
 }

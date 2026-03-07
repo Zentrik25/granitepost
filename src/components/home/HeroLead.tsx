@@ -32,7 +32,7 @@ export function HeroLead({ article }: HeroLeadProps) {
         {article.category && (
           <Link
             href={`/category/${article.category.slug}`}
-            className="inline-block self-start text-xs font-black bg-brand-red text-white px-2 py-0.5 uppercase tracking-widest mb-2 hover:bg-red-600"
+            className="inline-block self-start text-xs font-black bg-granite-primary text-white px-2 py-0.5 uppercase tracking-widest mb-2 hover:bg-granite-dark"
           >
             {article.category.name}
           </Link>
