@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Category } from '@/types'
 import type { SiteSettings } from '@/lib/settings/queries'
+import { MobileNav } from '@/components/ui/MobileNav'
 
 interface HeaderProps {
   categories: Category[]
@@ -42,9 +43,9 @@ export function Header({ categories, settings }: HeaderProps) {
   })
 
   return (
-    <header className="bg-white border-b border-brand-border sticky top-0 z-50 shadow-sm">
+    <header className="bg-granite-gradient sticky top-0 z-50 shadow-lg">
       {/* ── Top bar: current date (left) + WhatsApp (right) ── */}
-      <div className="bg-brand-dark text-white text-xs py-1.5">
+      <div className="bg-black/20 text-white text-xs py-1.5">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           <time
             dateTime={new Date().toISOString().slice(0, 10)}
@@ -58,7 +59,7 @@ export function Header({ categories, settings }: HeaderProps) {
               href={settings.whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-green-400 transition-colors"
+              className="flex items-center gap-1.5 hover:text-granite-accent transition-colors"
               aria-label="Join us on WhatsApp"
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -68,16 +69,20 @@ export function Header({ categories, settings }: HeaderProps) {
         </div>
       </div>
 
-      {/* ── Logo row: site name (left) + Search form (right) ── */}
+      {/* ── Logo row: site name (left) + Search + mobile menu (right) ── */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <Link href="/" className="flex flex-col shrink-0">
-          <span className="text-2xl md:text-3xl font-black tracking-tight text-brand-dark">
-            {settings.site_name}
-          </span>
-          <span className="text-xs text-brand-muted">Breaking News &amp; In-depth Coverage</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Mobile hamburger via client component */}
+          <MobileNav categories={categories} siteName={settings.site_name} />
+          <Link href="/" className="flex flex-col shrink-0">
+            <span className="text-2xl md:text-3xl font-black tracking-tight text-white">
+              {settings.site_name}
+            </span>
+            <span className="text-xs text-white/60 hidden sm:block">Breaking News &amp; In-depth Coverage</span>
+          </Link>
+        </div>
 
-        {/* Search — visible md+ screens. Mobile uses icon in category nav. */}
+        {/* Search — visible md+ screens */}
         <form
           action="/search"
           method="GET"
@@ -89,12 +94,12 @@ export function Header({ categories, settings }: HeaderProps) {
             name="q"
             placeholder="Search…"
             aria-label="Search articles"
-            className="border border-brand-border px-3 py-1.5 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red"
+            className="bg-white/10 border border-white/30 text-white placeholder:text-white/50 px-3 py-1.5 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-granite-accent focus:border-granite-accent rounded-l-full"
           />
           <button
             type="submit"
             aria-label="Submit search"
-            className="px-3 py-1.5 bg-brand-red text-white hover:bg-red-700 transition-colors border border-brand-red"
+            className="px-3 py-1.5 bg-granite-accent text-granite-primary hover:bg-yellow-300 transition-colors border border-granite-accent font-semibold rounded-r-full"
           >
             <SearchIcon className="w-4 h-4" />
           </button>
@@ -102,13 +107,13 @@ export function Header({ categories, settings }: HeaderProps) {
       </div>
 
       {/* ── Category nav ── */}
-      <nav className="border-t border-brand-border bg-white" aria-label="Main navigation">
+      <nav className="border-t border-white/20" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 overflow-x-auto">
-          <ul className="flex gap-0 text-sm font-semibold whitespace-nowrap">
+          <ul className="flex gap-0 text-sm font-semibold whitespace-nowrap text-white">
             <li>
               <Link
                 href="/"
-                className="inline-block px-3 py-2.5 hover:bg-brand-red hover:text-white transition-colors border-b-2 border-transparent hover:border-brand-red"
+                className="inline-block px-3 py-2.5 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
               >
                 Home
               </Link>
@@ -117,18 +122,18 @@ export function Header({ categories, settings }: HeaderProps) {
               <li key={cat.id}>
                 <Link
                   href={`/category/${cat.slug}`}
-                  className="inline-block px-3 py-2.5 hover:bg-brand-red hover:text-white transition-colors border-b-2 border-transparent hover:border-brand-red"
+                  className="inline-block px-3 py-2.5 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
                 >
                   {cat.name}
                 </Link>
               </li>
             ))}
-            {/* Mobile: search icon pinned to end of nav row */}
+            {/* Mobile: search link at end */}
             <li className="md:hidden ml-auto">
               <Link
                 href="/search"
-                className="inline-flex items-center px-3 py-2.5 hover:bg-brand-red hover:text-white transition-colors"
-                aria-label="Search"
+                className="inline-flex items-center px-3 py-2.5 text-white/70 hover:text-granite-accent transition-colors"
+                aria-label="Search articles"
               >
                 <SearchIcon className="w-4 h-4" />
               </Link>

@@ -143,7 +143,7 @@ export default async function ArticlePage({ params }: Props) {
             {article.category && (
               <Link
                 href={`/category/${article.category.slug}`}
-                className="inline-block text-xs font-bold bg-brand-red text-white px-2 py-0.5 uppercase tracking-wide mb-3 hover:bg-red-700"
+                className="inline-block text-xs font-bold bg-granite-primary text-white px-2 py-0.5 uppercase tracking-wide mb-3 hover:bg-granite-dark"
               >
                 {article.category.name}
               </Link>
@@ -154,7 +154,7 @@ export default async function ArticlePage({ params }: Props) {
             </h1>
 
             {article.excerpt && (
-              <p className="text-lg text-brand-muted font-serif leading-relaxed mb-4 border-l-4 border-brand-red pl-4">
+              <p className="text-lg text-brand-muted font-serif leading-relaxed mb-4 border-l-4 border-granite-accent pl-4">
                 {article.excerpt}
               </p>
             )}
@@ -212,7 +212,7 @@ export default async function ArticlePage({ params }: Props) {
                     <Link
                       key={tag.id}
                       href={`/tag/${tag.slug}`}
-                      className="text-xs px-2 py-1 bg-brand-gray hover:bg-brand-border transition-colors"
+                      className="text-xs px-3 py-1 rounded-full bg-granite-muted hover:bg-granite-primary hover:text-white transition-colors"
                     >
                       {tag.name}
                     </Link>
@@ -224,7 +224,7 @@ export default async function ArticlePage({ params }: Props) {
             {/* Related articles */}
             {related.length > 0 && (
               <section aria-label="Related articles" className="mt-10">
-                <h2 className="text-sm font-black uppercase tracking-widest border-b-2 border-brand-red pb-2 mb-4">
+                <h2 className="text-sm font-black uppercase tracking-widest border-b-2 border-granite-primary pb-2 mb-4">
                   Related Stories
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

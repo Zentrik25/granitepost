@@ -11,7 +11,7 @@ export function MostReadList({ articles, title = 'Most Read' }: MostReadListProp
 
   return (
     <section aria-label="Most read articles">
-      <h2 className="text-sm font-black uppercase tracking-widest border-b-2 border-brand-red pb-2 mb-4">
+      <h2 className="text-sm font-black uppercase tracking-widest border-b-2 border-granite-primary pb-2 mb-4">
         {title}
       </h2>
       <ol className="space-y-3">
@@ -22,7 +22,7 @@ export function MostReadList({ articles, title = 'Most Read' }: MostReadListProp
             </span>
             <Link
               href={`/article/${article.slug}`}
-              className="text-sm font-semibold leading-snug hover:text-brand-red transition-colors line-clamp-3"
+              className="text-sm font-semibold leading-snug hover:text-granite-primary transition-colors line-clamp-3"
             >
               {article.title}
             </Link>

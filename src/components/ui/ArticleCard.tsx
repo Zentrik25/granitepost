@@ -16,7 +16,7 @@ export function ArticleCard({
 }: ArticleCardProps) {
   if (variant === 'compact') {
     return (
-      <article className="flex gap-3 py-3 border-b border-brand-border last:border-0">
+      <article className="flex gap-3 py-3 border-b border-granite-muted last:border-0">
         {article.hero_image_url && (
           <div className="relative w-20 h-16 flex-shrink-0">
             <Image
@@ -32,13 +32,13 @@ export function ArticleCard({
           {article.category && (
             <Link
               href={`/category/${article.category.slug}`}
-              className="text-xs font-semibold text-brand-red uppercase tracking-wide hover:underline"
+              className="text-xs font-semibold text-granite-primary uppercase tracking-wide hover:underline"
             >
               {article.category.name}
             </Link>
           )}
           <h3 className="text-sm font-semibold leading-snug line-clamp-3 mt-0.5">
-            <Link href={`/article/${article.slug}`} className="hover:text-brand-red">
+            <Link href={`/article/${article.slug}`} className="hover:text-granite-primary">
               {article.title}
             </Link>
           </h3>
@@ -66,7 +66,7 @@ export function ArticleCard({
           {article.category && (
             <Link
               href={`/category/${article.category.slug}`}
-              className="inline-block text-xs font-bold bg-brand-red text-white px-2 py-0.5 uppercase tracking-wide mb-2 hover:bg-red-700"
+              className="inline-block text-xs font-bold bg-granite-primary text-white px-2 py-0.5 uppercase tracking-wide mb-2 hover:bg-granite-dark"
             >
               {article.category.name}
             </Link>
@@ -107,12 +107,12 @@ export function ArticleCard({
       {article.category && (
         <Link
           href={`/category/${article.category.slug}`}
-          className="text-xs font-semibold text-brand-red uppercase tracking-wide hover:underline"
+          className="text-xs font-semibold text-granite-primary uppercase tracking-wide hover:underline"
         >
           {article.category.name}
         </Link>
       )}
-      <h3 className="text-base md:text-lg font-bold leading-snug mt-1 mb-1 group-hover:text-brand-red transition-colors line-clamp-3">
+      <h3 className="text-base md:text-lg font-bold leading-snug mt-1 mb-1 group-hover:text-granite-primary transition-colors line-clamp-3">
         <Link href={`/article/${article.slug}`}>{article.title}</Link>
       </h3>
       {article.excerpt && (

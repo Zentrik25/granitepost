@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ArticleCard } from '@/components/ui/ArticleCard'
+import { Pagination } from '@/components/ui/Pagination'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { getCategoryBySlug } from '@/lib/queries/categories'
 import { getArticlesByCategory } from '@/lib/queries/articles'
 
@@ -35,7 +37,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="border-b-2 border-brand-red mb-6 pb-3">
+      <div className="border-b-2 border-granite-primary mb-6 pb-3">
         <h1 className="text-2xl md:text-3xl font-black">{category.name}</h1>
         {category.description && (
           <p className="text-brand-muted text-sm mt-1">{category.description}</p>
@@ -43,7 +45,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       </div>
 
       {result.data.length === 0 ? (
-        <p className="text-brand-muted">No articles in this category yet.</p>
+        <EmptyState
+          title="No articles yet"
+          description={`There are no published articles in ${category.name} yet. Check back soon.`}
+          action={{ label: 'Back to home', href: '/' }}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {result.data.map((article) => (
@@ -52,27 +58,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {/* Pagination */}
-      {(result.hasMore || page > 1) && (
-        <div className="flex gap-3 justify-center mt-8">
-          {page > 1 && (
-            <a
-              href={`/category/${slug}?page=${page - 1}`}
-              className="px-4 py-2 border border-brand-border text-sm font-semibold hover:bg-brand-gray"
-            >
-              &larr; Previous
-            </a>
-          )}
-          {result.hasMore && (
-            <a
-              href={`/category/${slug}?page=${page + 1}`}
-              className="px-4 py-2 border border-brand-border text-sm font-semibold hover:bg-brand-gray"
-            >
-              Next &rarr;
-            </a>
-          )}
-        </div>
-      )}
+      <Pagination
+        page={page}
+        hasMore={result.hasMore}
+        buildHref={(p) => `/category/${slug}?page=${p}`}
+      />
     </div>
   )
 }
