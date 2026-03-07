@@ -11,12 +11,18 @@ const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z
     .string()
     .min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
+  // Required for POST /api/revalidate to invalidate ISR cache securely
+  REVALIDATION_SECRET: z
+    .string()
+    .min(16, 'REVALIDATION_SECRET must be at least 16 characters')
+    .optional(),
 })
 
 const result = serverEnvSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL:      process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY:     process.env.SUPABASE_SERVICE_ROLE_KEY,
+  REVALIDATION_SECRET:           process.env.REVALIDATION_SECRET,
 })
 
 if (!result.success) {

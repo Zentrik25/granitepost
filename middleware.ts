@@ -1,5 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { getSecurityHeaders } from '@/lib/security/headers'
+
+// Apply security headers to any NextResponse
+function applySecurityHeaders(res: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(getSecurityHeaders())) {
+    res.headers.set(key, value)
+  }
+  return res
+}
 
 function redirectWithCookies(
   request: NextRequest,
@@ -21,31 +30,43 @@ function redirectWithCookies(
     response.cookies.set(cookie)
   }
 
-  return response
+  return applySecurityHeaders(response)
 }
 
 export async function middleware(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request)
   const { pathname, search } = request.nextUrl
 
-  // Allow the admin login page for logged-out users
-  if (pathname === '/admin/login') {
-    if (user) {
-      return redirectWithCookies(request, supabaseResponse, '/admin')
+  // ── Admin routes: session refresh + auth gate ────────────────────────────
+  if (pathname.startsWith('/admin')) {
+    const { supabaseResponse, user } = await updateSession(request)
+
+    if (pathname === '/admin/login') {
+      if (user) {
+        return redirectWithCookies(request, supabaseResponse, '/admin')
+      }
+      return applySecurityHeaders(supabaseResponse)
     }
-    return supabaseResponse
+
+    if (!user) {
+      return redirectWithCookies(request, supabaseResponse, '/admin/login', {
+        redirectTo: `${pathname}${search}`,
+      })
+    }
+
+    return applySecurityHeaders(supabaseResponse)
   }
 
-  // Any other admin route requires authentication
-  if (!user) {
-    return redirectWithCookies(request, supabaseResponse, '/admin/login', {
-      redirectTo: `${pathname}${search}`,
-    })
-  }
-
-  return supabaseResponse
+  // ── All other routes: security headers only ──────────────────────────────
+  return applySecurityHeaders(NextResponse.next())
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except Next.js internals and static files.
+     * This ensures security headers are applied to every HTML, API, and
+     * dynamic response while skipping assets that don't need them.
+     */
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt)$).*)',
+  ],
 }
