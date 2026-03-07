@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: ui-sans-serif, system-ui, sans-serif;
+    --font-serif: Georgia, 'Times New Roman', serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-brand-dark antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight;
+  }
+
+  /* Article body prose styles */
+  .article-body {
+    @apply max-w-none;
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: #1a1a1a;
+    
+  }
+
+  .article-body p {
+    @apply mb-5;
+  }
+
+  .article-body h2 {
+    @apply text-2xl font-bold mt-10 mb-4;
+    font-family: var(--font-sans);
+  }
+
+  .article-body h3 {
+    @apply text-xl font-bold mt-8 mb-3;
+    font-family: var(--font-sans);
+  }
+
+  .article-body blockquote {
+    @apply border-l-4 border-brand-red pl-4 italic my-6 text-brand-muted;
+  }
+
+  .article-body ul {
+    @apply list-disc list-outside ml-6 mb-5 space-y-1;
+  }
+
+  .article-body ol {
+    @apply list-decimal list-outside ml-6 mb-5 space-y-1;
+  }
+
+  .article-body a {
+    @apply text-brand-red underline;
+  }
+
+  .article-body img {
+    @apply w-full rounded-sm my-6;
+  }
+}
