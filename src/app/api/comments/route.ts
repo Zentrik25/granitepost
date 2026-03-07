@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
   const { allowed } = rateLimit(`comment:${ip}`, 3, 5 * 60_000)
 
   if (!allowed) {
-    return NextResponse.json({ error: 'Too many requests. Please wait before commenting again.' }, { status: 429 })
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait before commenting again.' },
+      { status: 429, headers: { 'Retry-After': '300' } }
+    )
   }
 
   let body: {
@@ -40,9 +43,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 422 })
   }
 
-  // Limit body length
+  // Minimum body length
+  if (commentBody.trim().length < 10) {
+    return NextResponse.json({ error: 'Comment too short (min 10 characters).' }, { status: 422 })
+  }
+
+  // Maximum body length
   if (commentBody.trim().length > 2000) {
     return NextResponse.json({ error: 'Comment too long (max 2000 characters).' }, { status: 422 })
+  }
+
+  // Link spam cap — max 2 URLs
+  const linkCount = (commentBody.match(/https?:\/\//gi) ?? []).length
+  if (linkCount > 2) {
+    return NextResponse.json({ error: 'Comments may not contain more than 2 links.' }, { status: 422 })
   }
 
   const supabase = await createClient()

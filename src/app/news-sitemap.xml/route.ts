@@ -13,15 +13,25 @@ export async function GET() {
 
   const { data: articles } = await supabase
     .from('articles')
-    .select('title, slug, published_at')
+    .select('title, slug, published_at, article_tags(tag:tags(name))')
     .eq('status', 'PUBLISHED')
     .gte('published_at', cutoff)
     .order('published_at', { ascending: false })
     .limit(1000)
 
   const urls = (articles ?? [])
-    .map(
-      (a) => `
+    .map((a) => {
+      const tagNames = (
+        a.article_tags as unknown as Array<{ tag: { name: string } | null }>
+      )
+        ?.map((at) => at.tag?.name)
+        .filter(Boolean) as string[] | undefined
+
+      const keywordsEl = tagNames?.length
+        ? `<news:keywords>${tagNames.join(', ')}</news:keywords>`
+        : ''
+
+      return `
   <url>
     <loc>${siteUrl}/article/${a.slug}</loc>
     <news:news>
@@ -31,9 +41,10 @@ export async function GET() {
       </news:publication>
       <news:publication_date>${a.published_at}</news:publication_date>
       <news:title><![CDATA[${a.title}]]></news:title>
+      ${keywordsEl}
     </news:news>
   </url>`
-    )
+    })
     .join('\n')
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

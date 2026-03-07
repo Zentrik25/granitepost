@@ -16,6 +16,11 @@ import { CommentForm } from '@/components/article/CommentForm'
 import { NewsletterForm } from '@/components/layout/NewsletterForm'
 import { formatDatetime, formatDate } from '@/lib/utils/slug'
 import { ViewTracker } from '@/components/article/ViewTracker'
+import {
+  buildNewsArticleSchema,
+  buildBreadcrumbSchema,
+  toJsonLd,
+} from '@/lib/seo/schema'
 
 export const revalidate = 300 // 5 min ISR
 
@@ -84,37 +89,41 @@ export default async function ArticlePage({ params }: Props) {
   ])
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online'
   const articleUrl = `${siteUrl}/article/${article.slug}`
 
-  // JSON-LD NewsArticle structured data
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+  const articleSchema = buildNewsArticleSchema({
     headline: article.title,
-    description: article.excerpt ?? undefined,
-    image: article.hero_image_url
-      ? [article.hero_image_url]
-      : undefined,
+    description: article.excerpt,
+    url: articleUrl,
+    imageUrl: article.og_image_url ?? article.hero_image_url,
     datePublished: article.published_at,
     dateModified: article.updated_at,
-    author: article.author?.full_name
-      ? [{ '@type': 'Person', name: article.author.full_name }]
-      : undefined,
-    publisher: {
-      '@type': 'Organization',
-      name: process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online',
-      url: siteUrl,
-    },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
-    articleSection: article.category?.name,
-    keywords: article.tags.map((t) => t.name).join(', '),
-  }
+    authorName: article.author?.full_name,
+    sectionName: article.category?.name,
+    keywords: article.tags.map((t) => t.name),
+    siteUrl,
+    siteName,
+  })
+
+  const breadcrumbItems = [
+    { name: 'Home', url: siteUrl },
+    ...(article.category
+      ? [{ name: article.category.name, url: `${siteUrl}/category/${article.category.slug}` }]
+      : []),
+    { name: article.title, url: articleUrl },
+  ]
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems)
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbSchema) }}
       />
       {/* Track view (client component, fires once) */}
       <ViewTracker articleId={article.id} />

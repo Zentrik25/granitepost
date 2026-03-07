@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const { allowed } = rateLimit(`newsletter:${ip}`, 3, 10 * 60_000)
 
   if (!allowed) {
-    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429, headers: { 'Retry-After': '600' } })
   }
 
   let body: { email?: string }
