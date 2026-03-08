@@ -54,27 +54,30 @@ export function NewsletterSection() {
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
+          className="w-full max-w-md mx-auto"
           noValidate
         >
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            aria-label="Email address"
-            className="flex-1 h-11 px-4 text-sm rounded-full text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white/10"
-            style={{ border: '1px solid #2E4A62' }}
-          />
-          <button
-            type="submit"
-            disabled={state === 'loading'}
-            className="h-11 px-6 text-sm font-bold rounded-full text-white shrink-0 transition-opacity disabled:opacity-60"
-            style={{ background: 'linear-gradient(90deg, #C8820A, #F0A318)' }}
-          >
-            {state === 'loading' ? 'Sending…' : 'Subscribe'}
-          </button>
+          {/* Stack vertically on mobile, side-by-side on sm+ */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+              aria-label="Email address"
+              className="w-full sm:flex-1 h-12 px-5 text-sm rounded-full text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white/10 min-w-0"
+              style={{ border: '1px solid #2E4A62' }}
+            />
+            <button
+              type="submit"
+              disabled={state === 'loading'}
+              className="w-full sm:w-auto h-12 px-7 text-sm font-bold rounded-full text-white whitespace-nowrap transition-opacity disabled:opacity-60"
+              style={{ background: 'linear-gradient(90deg, #C8820A, #F0A318)' }}
+            >
+              {state === 'loading' ? 'Sending…' : 'Subscribe'}
+            </button>
+          </div>
         </form>
       )}
 

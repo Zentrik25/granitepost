@@ -40,8 +40,13 @@ function LeadCard({ article }: { article: ArticleWithRelations }) {
       </div>
 
       <div className="relative z-10 p-4 flex flex-col gap-2">
-        <h3 className="text-[15px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-800 transition-colors duration-150">
-          {article.title}
+        <h3 className="text-[15px] font-bold leading-snug line-clamp-3">
+          <Link
+            href={`/article/${article.slug}`}
+            className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
+          >
+            {article.title}
+          </Link>
         </h3>
         {article.excerpt && (
           <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 hidden md:block">
