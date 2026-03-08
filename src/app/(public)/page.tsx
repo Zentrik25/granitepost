@@ -1,14 +1,11 @@
 import type { Metadata } from 'next'
-import type { ArticleWithRelations } from '@/types'
-import { BreakingBar } from '@/components/home/BreakingBar'
-import { HeroCarousel } from '@/components/home/HeroCarousel'
-import { TopStoriesGrid } from '@/components/home/TopStoriesGrid'
-import { CategoryBlocks } from '@/components/home/CategoryBlocks'
-import { LatestFeed } from '@/components/home/LatestFeed'
-import { LatestNewsSection } from '@/components/home/LatestNewsSection'
-import { MostReadList } from '@/components/home/MostReadList'
-import { NewsletterBanner } from '@/components/home/NewsletterBanner'
-import { ArticleCard } from '@/components/ui/ArticleCard'
+import { BreakingTicker } from '@/components/home/v2/BreakingTicker'
+import { HeroSection } from '@/components/home/v2/HeroSection'
+import { TopStoriesSection } from '@/components/home/v2/TopStoriesSection'
+import { MostReadSidebar } from '@/components/home/v2/MostReadSidebar'
+import { EditorialSection } from '@/components/home/v2/EditorialSection'
+import { LatestFeedSection } from '@/components/home/v2/LatestFeedSection'
+import { NewsletterSection } from '@/components/home/v2/NewsletterSection'
 import {
   getBreakingNews,
   getFeaturedArticles,
@@ -17,98 +14,168 @@ import {
   getCategoryBlocks,
   getLatestFeed,
 } from '@/lib/db/queries'
+import { getSiteSettings } from '@/lib/settings/queries'
 
-export const revalidate = 60
+export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: 'Zimbabwe News Online — Breaking News & In-depth Coverage',
-  description:
-    'The latest breaking news from Zimbabwe and across Africa. Politics, business, sport, entertainment and more.',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings()
+  const title = `${settings.site_name} — Breaking News & In-depth Coverage`
+  const description = settings.site_description
+
+  return {
+    title,
+    description,
+    alternates: { canonical: '/' },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      locale: 'en_ZW',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
 }
 
+const jsonLd = (siteName: string, siteDescription: string) => ({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': '/#webpage',
+      url: '/',
+      name: `${siteName} — Breaking News`,
+      description: siteDescription,
+      inLanguage: 'en',
+    },
+    {
+      '@type': 'Organization',
+      '@id': '/#organization',
+      name: siteName,
+      url: '/',
+      sameAs: [],
+    },
+  ],
+})
+
 export default async function HomePage() {
-  // ── Wave 1: all independent queries ──────────────────────────────────────
-  const [breaking, heroSlides, topStories, mostRead, categoryBlocks] = await Promise.all([
-    getBreakingNews(),
-    getFeaturedArticles(4),
-    getTopStories(12),
-    getMostReadArticles(5),
-    getCategoryBlocks(4, 3),
-  ])
+  // ── Wave 1: all independent ──────────────────────────────────────────────────
+  const [breaking, heroSlides, topStories, mostRead, categoryBlocks, settings] =
+    await Promise.all([
+      getBreakingNews(),
+      getFeaturedArticles(4),
+      getTopStories(18),
+      getMostReadArticles(5),
+      getCategoryBlocks(4, 3),
+      getSiteSettings(),
+    ])
 
-  // IDs shown in hero carousel — exclude from top stories sidebar
-  const heroSlideIds = new Set(heroSlides.map((a) => a.id))
-  const filteredTopStories = topStories.filter((a) => !heroSlideIds.has(a.id))
+  // IDs in hero — exclude from top stories
+  const heroIds = new Set(heroSlides.map((a) => a.id))
+  const topStoriesFiltered = topStories.filter((a) => !heroIds.has(a.id))
 
-  // ── Wave 2: Latest News — 10 articles, excludes hero + ALL top stories ──
-  const latestExcludeIds = [...new Set([
+  // ── Wave 2: Latest News (excludes hero + top stories) ───────────────────────
+  const latestExclude = [
     ...heroSlides.map((a) => a.id),
     ...topStories.map((a) => a.id),
-  ])]
-  const latestNews = await getLatestFeed(latestExcludeIds, 10)
+  ]
+  const latestNews = await getLatestFeed(latestExclude, 8)
 
-  // ── Wave 3: Bottom feed — excludes everything shown above ────────────────
-  const allUsedIds = [...new Set([
-    ...latestExcludeIds,
+  // ── Wave 3: Bottom feed (excludes everything above) ─────────────────────────
+  const allUsed = [
+    ...latestExclude,
     ...latestNews.map((a) => a.id),
     ...breaking.map((a) => a.id),
     ...categoryBlocks.flatMap((b) => b.articles.map((a) => a.id)),
-  ])]
-  const latestFeed = await getLatestFeed(allUsedIds, 12)
+  ]
+  const latestFeed = await getLatestFeed(allUsed, 8)
+
+  const ld = jsonLd(settings.site_name, settings.site_description)
 
   return (
     <>
-      {/* 1. Breaking news bar */}
-      <BreakingBar articles={breaking} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-10">
+      {/* 1. Breaking ticker */}
+      <BreakingTicker articles={breaking} />
 
-        {/* 2. Hero carousel + compact top-stories sidebar */}
-        {(heroSlides.length > 0 || filteredTopStories.length > 0) && (
-          <section aria-label="Lead story" className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-6">
-            {heroSlides.length > 0 && (
-              <div className="lg:col-span-2 min-w-0">
-                <HeroCarousel articles={heroSlides} />
+      {/* 2. Hero */}
+      <HeroSection articles={heroSlides} />
+
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-12">
+        {/* 3. Top Stories grid */}
+        {topStoriesFiltered.length > 0 && (
+          <TopStoriesSection articles={topStoriesFiltered.slice(0, 6)} />
+        )}
+
+        {/* 4. Most Read sidebar + Category editorial (2-col on lg) */}
+        {(mostRead.length > 0 || categoryBlocks.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Category editorial blocks — 3 cols */}
+            {categoryBlocks.length > 0 && (
+              <div className="lg:col-span-3 min-w-0">
+                <EditorialSection blocks={categoryBlocks} />
               </div>
             )}
-            <div className="border-t lg:border-t-0 lg:border-l border-brand-border pt-4 lg:pt-0 lg:pl-6 mt-4 lg:mt-0 min-w-0">
-              <h2 className="text-xs font-black uppercase tracking-widest text-brand-muted border-b border-brand-border pb-2 mb-3">
-                Top Stories
+
+            {/* Most Read sidebar — 1 col */}
+            {mostRead.length > 0 && (
+              <aside className="lg:col-span-1">
+                <div className="lg:sticky lg:top-24">
+                  <MostReadSidebar articles={mostRead} />
+                </div>
+              </aside>
+            )}
+          </div>
+        )}
+
+        {/* 5. Newsletter */}
+        <NewsletterSection />
+
+        {/* 6. Latest News 4-col grid */}
+        {latestNews.length > 0 && (
+          <LatestFeedSection articles={latestNews} />
+        )}
+
+        {/* 7. Bottom feed */}
+        {latestFeed.length > 0 && (
+          <section aria-label="More stories">
+            <div className="flex items-center gap-3 mb-4 pb-2 border-b-2 border-gray-900">
+              <h2 className="text-xs font-black uppercase tracking-widest text-gray-900">
+                More Stories
               </h2>
-              <div className="space-y-2">
-                {filteredTopStories.slice(0, 5).map((article: ArticleWithRelations) => (
-                  <ArticleCard key={article.id} article={article} variant="compact" />
-                ))}
-              </div>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {latestFeed.map((article) => (
+                <article key={article.id} className="group flex flex-col gap-2">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded bg-gray-100">
+                    {article.hero_image_url ? (
+                      <img
+                        src={article.hero_image_url}
+                        alt={article.hero_image_alt ?? article.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
+                    )}
+                  </div>
+                  <h3 className="text-[14px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-700 transition-colors">
+                    <a href={`/article/${article.slug}`}>{article.title}</a>
+                  </h3>
+                </article>
+              ))}
             </div>
           </section>
         )}
-
-        {/* 3. Top stories grid (remaining, beyond the sidebar 5) */}
-        {filteredTopStories.length > 5 && (
-          <TopStoriesGrid articles={filteredTopStories.slice(5, 11)} />
-        )}
-
-        {/* 4. Latest News — 10 most-recent articles, fully deduped */}
-        <LatestNewsSection articles={latestNews} />
-
-        {/* 5. Newsletter banner */}
-        <NewsletterBanner />
-
-        {/* 6. Category blocks + Most read sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 min-w-0">
-            <CategoryBlocks blocks={categoryBlocks} limitPerBlock={4} />
-          </div>
-          <aside className="lg:col-span-1">
-            <div className="sticky top-32">
-              <MostReadList articles={mostRead} />
-            </div>
-          </aside>
-        </div>
-
-        {/* 7. Latest Updates feed — everything not shown above */}
-        <LatestFeed articles={latestFeed} hasMore={false} />
       </div>
     </>
   )

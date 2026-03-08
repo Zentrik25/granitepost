@@ -55,8 +55,8 @@ export async function getHeroArticle(): Promise<ArticleWithRelations | null> {
 
 /**
  * Returns up to `limit` PUBLISHED articles where is_featured = true,
- * ordered by published_at DESC. Falls back to the single most-recent
- * PUBLISHED article if none are featured (so the hero carousel is never empty).
+ * ordered by published_at DESC. Returns empty array if none are featured —
+ * never auto-fills with latest articles.
  */
 export async function getFeaturedArticles(
   limit = 4
@@ -70,21 +70,8 @@ export async function getFeaturedArticles(
     .order('published_at', { ascending: false })
     .limit(limit)
 
-  if (data && data.length > 0) {
-    return data.map((d) => normaliseArticle(d as unknown as Record<string, unknown>))
-  }
-
-  // Fallback: most recent published article
-  const { data: fallback } = await supabase
-    .from('articles')
-    .select(ARTICLE_SELECT)
-    .eq('status', 'PUBLISHED')
-    .order('published_at', { ascending: false })
-    .limit(1)
-    .single()
-
-  if (!fallback) return []
-  return [normaliseArticle(fallback as unknown as Record<string, unknown>)]
+  if (!data || data.length === 0) return []
+  return data.map((d) => normaliseArticle(d as unknown as Record<string, unknown>))
 }
 
 export async function getBreakingNews(): Promise<ArticleWithRelations[]> {

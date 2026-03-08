@@ -47,7 +47,17 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
     touchStartX.current = null
   }
 
-  if (count === 0) return null
+  if (count === 0) {
+    return (
+      <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-granite-primary to-granite-dark flex flex-col items-center justify-center gap-3 text-white/40">
+        <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1} aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1M19 20a2 2 0 002-2V8a2 2 0 00-2-2h-5M8 10h8M8 14h4" />
+        </svg>
+        <p className="text-sm font-medium">No featured stories</p>
+        <p className="text-xs">Mark articles as Featured in the admin to show them here</p>
+      </div>
+    )
+  }
 
   const article = articles[current]
 
