@@ -14,12 +14,12 @@ export function HeroLead({ article }: HeroLeadProps) {
   return (
     <article className="relative bg-brand-dark text-white overflow-hidden group">
       {article.hero_image_url ? (
-        <div className="relative aspect-[16/9] w-full">
+        <div className="relative aspect-[16/9] w-full overflow-hidden">
           <Image
             src={article.hero_image_url}
             alt={article.hero_image_alt ?? article.title}
             fill
-            className="object-cover opacity-75 group-hover:opacity-85 transition-opacity duration-300"
+            className="object-cover opacity-75 group-hover:scale-[1.03] group-hover:opacity-85 transition-all duration-500 ease-out"
             priority
             sizes="(max-width: 768px) 100vw, 66vw"
           />
@@ -55,14 +55,14 @@ export function HeroLead({ article }: HeroLeadProps) {
           </p>
         )}
 
-        <div className="flex items-center gap-3 text-xs text-gray-400">
+        <p className="text-xs text-gray-400">
           {article.author?.full_name && (
-            <span className="font-medium text-gray-300">{article.author.full_name}</span>
+            <span className="font-medium text-gray-300">{article.author.full_name} · </span>
           )}
           <time dateTime={article.published_at ?? undefined}>
             {relativeTime(article.published_at)}
           </time>
-        </div>
+        </p>
       </div>
     </article>
   )
