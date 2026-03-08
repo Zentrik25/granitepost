@@ -32,8 +32,11 @@ export default async function AdminMediaPage({ searchParams }: Props) {
   const items = (media ?? []).slice(0, limit)
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-black">Media Library</h1>
+    <div className="space-y-6 max-w-[1400px]">
+      <div>
+        <h1 className="text-2xl font-black text-gray-900">Media Library</h1>
+        <p className="text-sm text-gray-500 mt-1">Upload and manage images for your articles</p>
+      </div>
       <MediaLibrary
         items={items}
         page={page}

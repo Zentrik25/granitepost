@@ -17,15 +17,15 @@ export function ArticleCard({
 }: ArticleCardProps) {
   if (variant === 'compact') {
     return (
-      <article className="group flex gap-3 py-3 border-b border-granite-muted last:border-0">
+      <article className="group flex gap-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-3 overflow-hidden">
         {article.hero_image_url && (
-          <div className="relative w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
+          <div className="relative w-[72px] h-[72px] flex-shrink-0 overflow-hidden rounded-lg">
             <Image
               src={article.hero_image_url}
               alt={article.hero_image_alt ?? article.title}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
-              sizes="80px"
+              sizes="72px"
             />
           </div>
         )}
@@ -45,7 +45,7 @@ export function ArticleCard({
               {article.title}
             </Link>
           </h3>
-          <p className="text-[11px] text-brand-muted mt-1">
+          <p className="text-[11px] text-brand-muted mt-1.5">
             {article.author?.full_name && (
               <span className="font-medium text-gray-500">{article.author.full_name} · </span>
             )}
