@@ -25,6 +25,17 @@ function ChevronIcon({ open }: { open: boolean }) {
   )
 }
 
+const FALLBACK_SLUGS = [
+  { name: 'Zimbabwe', slug: 'zimbabwe' },
+  { name: 'Africa', slug: 'africa' },
+  { name: 'World', slug: 'world' },
+  { name: 'Business', slug: 'business' },
+  { name: 'Politics', slug: 'politics' },
+  { name: 'Sport', slug: 'sport' },
+  { name: 'Technology', slug: 'technology' },
+  { name: 'Health', slug: 'health' },
+]
+
 export function MobileNav({ allCategories, siteName }: MobileNavProps) {
   const [open, setOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -40,6 +51,9 @@ export function MobileNav({ allCategories, siteName }: MobileNavProps) {
   const topLevel = allCategories.filter((c) => !c.parent_id)
   const childrenOf = (parentId: string) =>
     allCategories.filter((c) => c.parent_id === parentId)
+
+  // If no categories from DB, render fallback static list
+  const hasDynamicCategories = topLevel.length > 0
 
   function toggleExpand(id: string) {
     setExpandedId((prev) => (prev === id ? null : id))
@@ -108,7 +122,18 @@ export function MobileNav({ allCategories, siteName }: MobileNavProps) {
               </Link>
             </li>
 
-            {topLevel.map((cat) => {
+            {!hasDynamicCategories && FALLBACK_SLUGS.map((cat) => (
+              <li key={cat.slug}>
+                <Link
+                  href={`/category/${cat.slug}`}
+                  className="block px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-granite-accent transition-colors rounded-lg mx-2"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
+
+            {hasDynamicCategories && topLevel.map((cat) => {
               const subs = childrenOf(cat.id)
               const isExpanded = expandedId === cat.id
 
