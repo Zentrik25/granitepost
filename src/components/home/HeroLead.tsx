@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { ArticleWithRelations } from '@/types'
 import { relativeTime } from '@/lib/utils/slug'
+import { CategoryBadge } from '@/components/ui/CategoryBadge'
 
 interface HeroLeadProps {
   article: ArticleWithRelations
@@ -30,12 +31,13 @@ export function HeroLead({ article }: HeroLeadProps) {
       {/* Gradient overlay + content */}
       <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6 bg-gradient-to-t from-black/95 via-black/50 to-transparent">
         {article.category && (
-          <Link
+          <CategoryBadge
+            name={article.category.name}
             href={`/category/${article.category.slug}`}
-            className="inline-block self-start text-xs font-black bg-granite-primary text-white px-2 py-0.5 uppercase tracking-widest mb-2 hover:bg-granite-dark"
-          >
-            {article.category.name}
-          </Link>
+            variant="overlay"
+            size="md"
+            className="mb-2 self-start"
+          />
         )}
 
         <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight mb-2">

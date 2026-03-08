@@ -35,54 +35,27 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 export function Header({ categories, settings }: HeaderProps) {
-  const today = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   return (
     <header className="bg-granite-gradient sticky top-0 z-50 shadow-lg">
-      {/* ── Top bar: current date (left) + WhatsApp (right) ── */}
-      <div className="bg-black/20 text-white text-xs py-1.5">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <time
-            dateTime={new Date().toISOString().slice(0, 10)}
-            className="font-medium tracking-wide"
-          >
-            {today}
-          </time>
+      {/* ── Main row: menu | title | [spacer] | search | whatsapp ───────────── */}
+      <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-3">
+        {/* Mobile hamburger */}
+        <MobileNav categories={categories} siteName={settings.site_name} />
 
-          {settings.whatsapp_url ? (
-            <a
-              href={settings.whatsapp_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-granite-accent transition-colors"
-              aria-label="Join us on WhatsApp"
-            >
-              <WhatsAppIcon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline font-semibold">WhatsApp</span>
-            </a>
-          ) : null}
-        </div>
-      </div>
+        {/* Site name */}
+        <Link href="/" className="flex flex-col shrink-0 mr-1">
+          <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white leading-none">
+            {settings.site_name}
+          </span>
+          <span className="text-[10px] text-white/50 hidden sm:block mt-0.5 tracking-wide">
+            Breaking News &amp; In-depth Coverage
+          </span>
+        </Link>
 
-      {/* ── Logo row: site name (left) + Search + mobile menu (right) ── */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          {/* Mobile hamburger via client component */}
-          <MobileNav categories={categories} siteName={settings.site_name} />
-          <Link href="/" className="flex flex-col shrink-0">
-            <span className="text-2xl md:text-3xl font-black tracking-tight text-white">
-              {settings.site_name}
-            </span>
-            <span className="text-xs text-white/60 hidden sm:block">Breaking News &amp; In-depth Coverage</span>
-          </Link>
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
-        {/* Search — visible md+ screens */}
+        {/* Inline search — md+ only */}
         <form
           action="/search"
           method="GET"
@@ -94,26 +67,49 @@ export function Header({ categories, settings }: HeaderProps) {
             name="q"
             placeholder="Search…"
             aria-label="Search articles"
-            className="bg-white/10 border border-white/30 text-white placeholder:text-white/50 px-3 py-1.5 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-granite-accent focus:border-granite-accent rounded-l-full"
+            className="bg-white/10 border border-white/30 text-white placeholder:text-white/50 px-3 py-1.5 text-sm w-44 lg:w-56 focus:outline-none focus:ring-2 focus:ring-granite-accent focus:border-granite-accent rounded-l-full"
           />
           <button
             type="submit"
             aria-label="Submit search"
-            className="px-3 py-1.5 bg-granite-accent text-granite-primary hover:bg-yellow-300 transition-colors border border-granite-accent font-semibold rounded-r-full"
+            className="px-3 py-1.5 bg-granite-accent text-granite-primary hover:bg-yellow-300 active:bg-yellow-400 transition-colors border border-granite-accent font-semibold rounded-r-full"
           >
             <SearchIcon className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Search icon — mobile only */}
+        <Link
+          href="/search"
+          className="md:hidden text-white/80 hover:text-white p-1 transition-colors"
+          aria-label="Search articles"
+        >
+          <SearchIcon className="w-5 h-5" />
+        </Link>
+
+        {/* WhatsApp button — official green */}
+        {settings.whatsapp_url ? (
+          <a
+            href={settings.whatsapp_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Join us on WhatsApp"
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-[#25D366] hover:bg-[#1ebe57] active:bg-[#18a84b] active:scale-95 transition-all duration-150 shrink-0 shadow-sm"
+          >
+            <WhatsAppIcon className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">WhatsApp</span>
+          </a>
+        ) : null}
       </div>
 
-      {/* ── Category nav ── */}
+      {/* ── Category nav ──────────────────────────────────────────────────────── */}
       <nav className="border-t border-white/20" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 overflow-x-auto">
-          <ul className="flex gap-0 text-sm font-semibold whitespace-nowrap text-white">
+          <ul className="flex text-sm font-semibold whitespace-nowrap text-white">
             <li>
               <Link
                 href="/"
-                className="inline-block px-3 py-2.5 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
+                className="inline-block px-3 py-2 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
               >
                 Home
               </Link>
@@ -122,22 +118,12 @@ export function Header({ categories, settings }: HeaderProps) {
               <li key={cat.id}>
                 <Link
                   href={`/category/${cat.slug}`}
-                  className="inline-block px-3 py-2.5 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
+                  className="inline-block px-3 py-2 hover:text-granite-accent transition-colors border-b-2 border-transparent hover:border-granite-accent"
                 >
                   {cat.name}
                 </Link>
               </li>
             ))}
-            {/* Mobile: search link at end */}
-            <li className="md:hidden ml-auto">
-              <Link
-                href="/search"
-                className="inline-flex items-center px-3 py-2.5 text-white/70 hover:text-granite-accent transition-colors"
-                aria-label="Search articles"
-              >
-                <SearchIcon className="w-4 h-4" />
-              </Link>
-            </li>
           </ul>
         </div>
       </nav>
