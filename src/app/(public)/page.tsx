@@ -6,6 +6,7 @@ import { MostReadSidebar } from '@/components/home/v2/MostReadSidebar'
 import { EditorialSection } from '@/components/home/v2/EditorialSection'
 import { LatestFeedSection } from '@/components/home/v2/LatestFeedSection'
 import { NewsletterSection } from '@/components/home/v2/NewsletterSection'
+import { ArticleCard } from '@/components/ui/ArticleCard'
 import {
   getBreakingNews,
   getFeaturedArticles,
@@ -155,23 +156,7 @@ export default async function HomePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {latestFeed.map((article) => (
-                <article key={article.id} className="group flex flex-col gap-2">
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded bg-gray-100">
-                    {article.hero_image_url ? (
-                      <img
-                        src={article.hero_image_url}
-                        alt={article.hero_image_alt ?? article.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
-                    )}
-                  </div>
-                  <h3 className="text-[14px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-700 transition-colors">
-                    <a href={`/article/${article.slug}`}>{article.title}</a>
-                  </h3>
-                </article>
+                <ArticleCard key={article.id} article={article} />
               ))}
             </div>
           </section>

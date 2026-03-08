@@ -30,41 +30,51 @@ export function LatestFeedSection({ articles }: LatestFeedSectionProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {articles.map((article) => (
-          <article key={article.id} className="group flex flex-col gap-2">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded bg-gray-100">
+          <article
+            key={article.id}
+            className="relative group flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-1 active:scale-[0.98] transition-all duration-200 overflow-hidden"
+          >
+            {/* Cover link */}
+            <Link
+              href={`/article/${article.slug}`}
+              className="absolute inset-0 z-0"
+              aria-label={article.title}
+              tabIndex={-1}
+            />
+
+            <div className="relative aspect-[16/9] w-full overflow-hidden flex-shrink-0">
               {article.hero_image_url ? (
                 <Image
                   src={article.hero_image_url}
                   alt={article.hero_image_alt ?? article.title}
                   fill
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                  className="object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-out"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
               )}
 
-              {/* Live badge — top-left */}
               {'is_live' in article && article.is_live && (
-                <div className="absolute top-2 left-2">
+                <div className="absolute top-2 left-2 z-10">
                   <LiveBadge />
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="relative z-10 p-3.5 flex flex-col gap-1.5 flex-1">
               {article.category && (
                 <Link
                   href={`/category/${article.category.slug}`}
-                  className="text-[10px] font-bold uppercase tracking-wide text-amber-600 hover:text-amber-500 transition-colors"
+                  className="text-[10px] font-bold uppercase tracking-wide text-amber-600 hover:text-amber-500 transition-colors self-start"
                 >
                   {article.category.name}
                 </Link>
               )}
-              <h3 className="text-[14px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-700 transition-colors">
-                <Link href={`/article/${article.slug}`}>{article.title}</Link>
+              <h3 className="text-[13px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-800 transition-colors duration-150">
+                {article.title}
               </h3>
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-gray-400 mt-auto pt-2 border-t border-gray-100">
                 <time dateTime={article.updated_at ?? article.published_at ?? undefined}>
                   {relativeTime(article.updated_at ?? article.published_at)}
                 </time>
