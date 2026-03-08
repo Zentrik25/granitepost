@@ -31,11 +31,11 @@ export default async function AdminLayout({
   const role = roleData.role as UserRole
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-slate-50 flex overflow-hidden">
       <AdminSidebar role={role} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <AdminHeader user={{ id: user.id, email: user.email ?? '' }} role={role} />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
       </div>
     </div>
   )
