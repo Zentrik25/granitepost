@@ -107,8 +107,8 @@ export function Footer({ categories, settings }: FooterProps) {
               Legal
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/privacy" className="text-white/70 hover:text-white">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-white/70 hover:text-white">Terms of Use</Link></li>
+              <li><Link href="/privacy-policy" className="text-white/70 hover:text-white">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-use" className="text-white/70 hover:text-white">Terms of Use</Link></li>
               <li><Link href="/sitemap.xml" className="text-white/70 hover:text-white">Sitemap</Link></li>
             </ul>
           </div>
