@@ -18,11 +18,11 @@ export function CategoryBlock({ category, articles, limit = 4 }: CategoryBlockPr
 
   return (
     <section aria-label={`${category.name} stories`}>
-      <div className="flex items-center justify-between border-b-2 border-brand-red pb-2 mb-4">
+      <div className="flex items-center justify-between border-b-2 border-granite-primary pb-2 mb-4">
         <h2 className="text-sm font-black uppercase tracking-widest">{category.name}</h2>
         <Link
           href={`/category/${category.slug}`}
-          className="text-xs font-semibold text-brand-red hover:underline"
+          className="text-xs font-semibold text-granite-primary hover:underline"
           aria-label={`See all ${category.name} articles`}
         >
           See all &rarr;
