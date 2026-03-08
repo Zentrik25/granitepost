@@ -77,10 +77,22 @@ export function HamburgerMenu({ categories, siteName }: HamburgerMenuProps) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
           <Link
             href="/"
-            className="text-white font-black text-lg tracking-tight"
+            aria-label={siteName}
             onClick={() => setOpen(false)}
+            className="flex items-baseline gap-0 leading-none select-none"
           >
-            {siteName}
+            <span className="text-[12px] font-bold tracking-[0.22em] uppercase text-white mr-1.5 mb-px">
+              The
+            </span>
+            <span
+              className="text-[22px] font-bold text-white leading-none"
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+            >
+              Granite
+            </span>
+            <span className="text-[12px] font-bold tracking-[0.22em] uppercase text-white ml-1.5 mb-px">
+              Post
+            </span>
           </Link>
           <button
             ref={closeRef}
