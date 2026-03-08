@@ -14,6 +14,7 @@ export const TABLES = {
   COMMENTS: 'comments',
   NEWSLETTER_SUBSCRIBERS: 'newsletter_subscribers',
   SITE_SETTINGS: 'site_settings',
+  SITE_PAGES: 'site_pages',
   AUDIT_LOGS: 'audit_logs',
 } as const
 

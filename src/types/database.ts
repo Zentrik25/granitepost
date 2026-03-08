@@ -402,6 +402,32 @@ export type Database = {
         Relationships: never[]
       }
 
+      site_pages: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          meta_description: string | null
+          content_html: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          meta_description?: string | null
+          content_html?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          meta_description?: string | null
+          content_html?: string
+          updated_at?: string
+        }
+        Relationships: never[]
+      }
+
       site_settings: {
         Row: {
           key: string
@@ -561,6 +587,9 @@ export type ArticleViewsDaily = Tables['article_views_daily']['Row']
 export type Comment = Tables['comments']['Row']
 export type CommentModerationLog = Tables['comment_moderation_log']['Row']
 export type NewsletterSubscriber = Tables['newsletter_subscribers']['Row']
+export type SitePage = Tables['site_pages']['Row']
+export type SitePageInsert = Tables['site_pages']['Insert']
+export type SitePageUpdate = Tables['site_pages']['Update']
 export type SiteSetting = Tables['site_settings']['Row']
 export type AuditLog = Tables['audit_logs']['Row']
 
