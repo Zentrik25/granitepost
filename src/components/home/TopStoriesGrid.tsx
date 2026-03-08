@@ -24,12 +24,14 @@ export function TopStoriesGrid({ articles, sideArticles }: TopStoriesGridProps) 
 
         {/* Compact side list */}
         <div className="border-t lg:border-t-0 lg:border-l border-brand-border pt-4 lg:pt-0 lg:pl-6 mt-4 lg:mt-0">
-          <h2 className="text-xs font-black uppercase tracking-widest text-brand-muted border-b border-brand-border pb-2 mb-0">
+          <h2 className="text-xs font-black uppercase tracking-widest text-brand-muted border-b border-brand-border pb-2 mb-3">
             More stories
           </h2>
-          {sideArticles.slice(0, 5).map((article) => (
-            <ArticleCard key={article.id} article={article} variant="compact" />
-          ))}
+          <div className="space-y-2">
+            {sideArticles.slice(0, 5).map((article) => (
+              <ArticleCard key={article.id} article={article} variant="compact" />
+            ))}
+          </div>
         </div>
       </section>
     )

@@ -28,9 +28,9 @@ function niceMax(raw: number): number {
 export function ViewsChart({ data, label = 'Views Over Time' }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white border border-brand-border p-6">
-        <p className="text-sm font-bold mb-4">{label}</p>
-        <p className="text-brand-muted text-sm text-center py-12">No data for this period.</p>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <p className="text-sm font-bold text-gray-800 mb-4">{label}</p>
+        <p className="text-gray-400 text-sm text-center py-12">No data for this period.</p>
       </div>
     )
   }
@@ -45,8 +45,8 @@ export function ViewsChart({ data, label = 'Views Over Time' }: Props) {
   const labelEvery = barCount <= 7 ? 1 : barCount <= 14 ? 2 : barCount <= 30 ? 5 : 7
 
   return (
-    <div className="bg-white border border-brand-border p-4 sm:p-6">
-      <p className="text-sm font-bold mb-4">{label}</p>
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
+      <p className="text-sm font-bold text-gray-800 mb-4">{label}</p>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"

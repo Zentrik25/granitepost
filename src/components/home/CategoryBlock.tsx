@@ -39,7 +39,7 @@ export function CategoryBlock({ category, articles, limit = 4 }: CategoryBlockPr
 
         {/* Compact list on the right */}
         {rest.length > 0 && (
-          <div className="space-y-0">
+          <div className="space-y-2">
             {rest.map((article) => (
               <ArticleCard key={article.id} article={article} variant="compact" />
             ))}
