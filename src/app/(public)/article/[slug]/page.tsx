@@ -23,6 +23,7 @@ import {
 } from '@/lib/seo/schema'
 import { resolveOgImage } from '@/lib/utils/images'
 import { CategoryBadge } from '@/components/ui/CategoryBadge'
+import { BackToHome } from '@/components/article/BackToHome'
 
 export const revalidate = 300 // 5 min ISR
 
@@ -138,6 +139,9 @@ export default async function ArticlePage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* ── Article ─────────────────────────────────────────────────── */}
           <article className="lg:col-span-3">
+            {/* Back to Home */}
+            <BackToHome />
+
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="text-xs text-brand-muted mb-4">
               <Link href="/" className="hover:underline">Home</Link>

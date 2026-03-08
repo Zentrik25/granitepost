@@ -32,21 +32,21 @@ export function AdminHeader({ user, role }: AdminHeaderProps) {
   const displayName = user.email.split('@')[0]
 
   return (
-    <header className="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between flex-shrink-0 shadow-sm">
+    <header className="bg-brand-surface border-b border-brand-border px-6 py-3 flex items-center justify-between flex-shrink-0">
       {/* Left: user info */}
       <div className="flex items-center gap-3 min-w-0">
         {/* Avatar bubble */}
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold uppercase shadow-sm"
-          style={{ background: 'linear-gradient(135deg, #142B6F 0%, #0D1E50 100%)' }}
+          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold uppercase"
+          style={{ background: 'linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%)' }}
           aria-hidden="true"
         >
           {displayName.charAt(0)}
         </div>
 
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-800 truncate leading-none">{user.email}</p>
-          <p className="text-[10px] text-gray-400 mt-0.5 leading-none uppercase tracking-wider font-medium">{role}</p>
+          <p className="text-sm font-semibold text-brand-primary truncate leading-none">{user.email}</p>
+          <p className="text-[10px] text-brand-muted mt-0.5 leading-none uppercase tracking-wider font-medium">{role}</p>
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export function AdminHeader({ user, role }: AdminHeaderProps) {
       <button
         type="button"
         onClick={signOut}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100 transition-all duration-150"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-brand-border text-sm font-medium text-brand-secondary hover:border-brand-ink hover:text-brand-primary hover:bg-brand-canvas active:bg-brand-border transition-all duration-150"
       >
         <SignOutIcon />
         <span className="hidden sm:inline">Sign out</span>

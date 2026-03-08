@@ -1,6 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import {
+  AdminCard,
+  AdminPageHeader,
+  AdminStatusBadge,
+  AdminTableHead,
+  adminTableRowClass,
+} from '@/components/admin/ui/AdminCard'
 
 export const metadata: Metadata = { title: 'Dashboard — Admin' }
 
@@ -52,11 +59,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8 max-w-[1400px]">
-      {/* Page heading */}
-      <div>
-        <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Your newsroom at a glance</p>
-      </div>
+      <AdminPageHeader title="Dashboard" description="Your newsroom at a glance" />
 
       {/* ── 6 KPI cards ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -105,59 +108,50 @@ export default async function AdminDashboard() {
         />
       </div>
 
-      {/* ── Recent articles ──────────────────────────────────────────────────── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-800">Recent Articles</h2>
-          <Link
-            href="/admin/articles"
-            className="text-xs font-semibold text-granite-primary hover:underline"
-          >
-            View all →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/80">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Title</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Updated</th>
-                <th className="px-5 py-3" />
+      {/* ── Recent articles ─────────────────────────────────────────────────────── */}
+      <AdminCard
+        title="Recent Articles"
+        padded={false}
+        action={<Link href="/admin/articles" className="text-brand-ink hover:underline">View all →</Link>}
+      >
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-brand-border bg-brand-canvas/60">
+              <AdminTableHead>Title</AdminTableHead>
+              <AdminTableHead>Status</AdminTableHead>
+              <AdminTableHead>Updated</AdminTableHead>
+              <AdminTableHead><span className="sr-only">Actions</span></AdminTableHead>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-brand-border">
+            {(recentArticles ?? []).map((article) => (
+              <tr key={article.id} className={adminTableRowClass()}>
+                <td className="px-5 py-3.5 font-medium text-brand-primary max-w-xs">
+                  <span className="line-clamp-2 leading-snug">{article.title}</span>
+                </td>
+                <td className="px-5 py-3.5">
+                  <AdminStatusBadge status={article.status} />
+                </td>
+                <td className="px-5 py-3.5 text-brand-muted text-xs hidden md:table-cell">
+                  {new Date(article.updated_at).toLocaleDateString('en-GB')}
+                </td>
+                <td className="px-5 py-3.5 text-right">
+                  <Link href={`/admin/articles/${article.id}`} className="text-xs font-semibold text-brand-ink hover:underline">
+                    Edit
+                  </Link>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {(recentArticles ?? []).map((article) => (
-                <tr key={article.id} className="hover:bg-blue-50/20 transition-colors">
-                  <td className="px-5 py-3.5 font-medium text-gray-800 max-w-xs"><span className="line-clamp-2 leading-snug">{article.title}</span></td>
-                  <td className="px-5 py-3.5">
-                    <StatusBadge status={article.status} />
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-400 text-xs hidden md:table-cell">
-                    {new Date(article.updated_at).toLocaleDateString('en-GB')}
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <Link
-                      href={`/admin/articles/${article.id}`}
-                      className="text-xs font-semibold text-granite-primary hover:underline"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {(recentArticles ?? []).length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
-                    No articles yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            ))}
+            {(recentArticles ?? []).length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-5 py-10 text-center text-brand-muted">
+                  No articles yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </AdminCard>
     </div>
   )
 }
@@ -223,18 +217,3 @@ function KpiCard({
   )
 }
 
-// ── Status badge ──────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    PUBLISHED: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-    DRAFT:     'bg-slate-100 text-slate-600 border border-slate-200',
-    REVIEW:    'bg-amber-50 text-amber-700 border border-amber-200',
-    ARCHIVED:  'bg-rose-50 text-rose-600 border border-rose-200',
-  }
-  return (
-    <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full ${styles[status] ?? 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
-      {status.charAt(0) + status.slice(1).toLowerCase()}
-    </span>
-  )
-}

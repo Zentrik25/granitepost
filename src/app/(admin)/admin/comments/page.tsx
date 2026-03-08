@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { requireAuth } from '@/lib/auth/guards'
 import { getAdminComments } from '@/lib/comments/queries'
 import { CommentsModeration } from '@/components/admin/CommentsModeration'
+import { AdminPageHeader } from '@/components/admin/ui/AdminCard'
 import type { CommentStatus } from '@/types'
 
 export const metadata: Metadata = { title: 'Comments — Admin' }
@@ -27,8 +28,8 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
   const hasMore = page * limit < total
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-black">Comments</h1>
+    <div className="space-y-6">
+      <AdminPageHeader title="Comments" description={`${total} total · showing ${status.toLowerCase()}`} />
       <CommentsModeration
         comments={comments}
         currentStatus={status}
