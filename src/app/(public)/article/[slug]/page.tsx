@@ -21,6 +21,8 @@ import {
   buildBreadcrumbSchema,
   toJsonLd,
 } from '@/lib/seo/schema'
+import { resolveOgImage } from '@/lib/utils/images'
+import { CategoryBadge } from '@/components/ui/CategoryBadge'
 
 export const revalidate = 300 // 5 min ISR
 
@@ -42,7 +44,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = article.og_title ?? article.title
   const description = article.og_description ?? article.excerpt ?? ''
-  const ogImage = article.og_image_url ?? article.hero_image_url ?? undefined
+  // resolveOgImage converts signed Supabase URLs → permanent public URLs so
+  // WhatsApp / Google crawlers can cache the image without expiry.
+  const ogImage = resolveOgImage(article.og_image_url, article.hero_image_url)
   const url = `${siteUrl}/article/${article.slug}`
 
   return {
@@ -55,6 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       siteName,
+      // WhatsApp requires og:image to be an absolute, publicly accessible URL
+      // of at least 300×200px; 1200×630 gives the large preview format.
       images: ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
         : [],
@@ -96,7 +102,7 @@ export default async function ArticlePage({ params }: Props) {
     headline: article.title,
     description: article.excerpt,
     url: articleUrl,
-    imageUrl: article.og_image_url ?? article.hero_image_url,
+    imageUrl: resolveOgImage(article.og_image_url, article.hero_image_url),
     datePublished: article.published_at,
     dateModified: article.updated_at,
     authorName: article.author?.full_name,
@@ -150,12 +156,12 @@ export default async function ArticlePage({ params }: Props) {
 
             {/* Category label */}
             {article.category && (
-              <Link
+              <CategoryBadge
+                name={article.category.name}
                 href={`/category/${article.category.slug}`}
-                className="inline-block text-xs font-bold bg-granite-primary text-white px-2 py-0.5 uppercase tracking-wide mb-3 hover:bg-granite-dark"
-              >
-                {article.category.name}
-              </Link>
+                size="md"
+                className="mb-3"
+              />
             )}
 
             <h1 className="text-2xl md:text-4xl font-black leading-tight mb-4">

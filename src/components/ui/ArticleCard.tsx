@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { ArticleWithRelations } from '@/types'
 import { relativeTime } from '@/lib/utils/slug'
+import { CategoryBadge } from '@/components/ui/CategoryBadge'
 
 interface ArticleCardProps {
   article: ArticleWithRelations
@@ -30,12 +31,11 @@ export function ArticleCard({
         )}
         <div className="flex-1 min-w-0">
           {article.category && (
-            <Link
+            <CategoryBadge
+              name={article.category.name}
               href={`/category/${article.category.slug}`}
-              className="text-xs font-semibold text-granite-primary uppercase tracking-wide hover:underline"
-            >
-              {article.category.name}
-            </Link>
+              className="mb-1"
+            />
           )}
           <h3 className="text-sm font-semibold leading-snug line-clamp-3 mt-0.5">
             <Link href={`/article/${article.slug}`} className="hover:text-granite-primary">
@@ -64,12 +64,12 @@ export function ArticleCard({
         )}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
           {article.category && (
-            <Link
+            <CategoryBadge
+              name={article.category.name}
               href={`/category/${article.category.slug}`}
-              className="inline-block text-xs font-bold bg-granite-primary text-white px-2 py-0.5 uppercase tracking-wide mb-2 hover:bg-granite-dark"
-            >
-              {article.category.name}
-            </Link>
+              variant="overlay"
+              className="mb-2"
+            />
           )}
           <h2 className="text-xl md:text-3xl font-bold leading-tight mb-2">
             <Link href={`/article/${article.slug}`} className="hover:underline">
@@ -105,12 +105,11 @@ export function ArticleCard({
         </div>
       )}
       {article.category && (
-        <Link
+        <CategoryBadge
+          name={article.category.name}
           href={`/category/${article.category.slug}`}
-          className="text-xs font-semibold text-granite-primary uppercase tracking-wide hover:underline"
-        >
-          {article.category.name}
-        </Link>
+          className="mb-1"
+        />
       )}
       <h3 className="text-base md:text-lg font-bold leading-snug mt-1 mb-1 group-hover:text-granite-primary transition-colors line-clamp-3">
         <Link href={`/article/${article.slug}`}>{article.title}</Link>
