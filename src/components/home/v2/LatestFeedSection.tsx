@@ -71,8 +71,13 @@ export function LatestFeedSection({ articles }: LatestFeedSectionProps) {
                   {article.category.name}
                 </Link>
               )}
-              <h3 className="text-[13px] font-bold text-gray-900 leading-snug line-clamp-3 group-hover:text-amber-800 transition-colors duration-150">
-                {article.title}
+              <h3 className="text-[13px] font-bold leading-snug line-clamp-3">
+                <Link
+                  href={`/article/${article.slug}`}
+                  className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
+                >
+                  {article.title}
+                </Link>
               </h3>
               <p className="text-[11px] text-gray-400 mt-auto pt-2 border-t border-gray-100">
                 <time dateTime={article.updated_at ?? article.published_at ?? undefined}>

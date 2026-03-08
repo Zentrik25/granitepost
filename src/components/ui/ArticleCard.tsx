@@ -48,12 +48,17 @@ export function ArticleCard({
               />
             </div>
           )}
-          <h3 className="text-[13px] font-semibold leading-snug line-clamp-2 text-gray-900 group-hover:text-amber-800 transition-colors duration-150">
-            {article.title}
+          <h3 className="text-[13px] font-semibold leading-snug line-clamp-2">
+            <Link
+              href={`/article/${article.slug}`}
+              className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
+            >
+              {article.title}
+            </Link>
           </h3>
           <p className="text-[11px] text-gray-400 mt-1.5">
             {article.author?.full_name && (
-              <span className="text-gray-500 font-medium">{article.author.full_name} · </span>
+              <span className="text-gray-500 font-medium">By {article.author.full_name} · </span>
             )}
             <time dateTime={article.published_at ?? undefined}>
               {relativeTime(article.published_at)}
@@ -106,7 +111,7 @@ export function ArticleCard({
           )}
           <p className="text-xs text-gray-400">
             {article.author?.full_name && (
-              <span className="text-gray-300 font-medium">{article.author.full_name} · </span>
+              <span className="text-gray-300 font-medium">By {article.author.full_name} · </span>
             )}
             <time dateTime={article.published_at ?? undefined}>
               {relativeTime(article.published_at)}
@@ -154,8 +159,13 @@ export function ArticleCard({
           </div>
         )}
 
-        <h3 className="text-[15px] font-bold leading-snug text-gray-900 group-hover:text-amber-800 transition-colors duration-150 line-clamp-3">
-          {article.title}
+        <h3 className="text-[15px] font-bold leading-snug line-clamp-3">
+          <Link
+            href={`/article/${article.slug}`}
+            className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
+          >
+            {article.title}
+          </Link>
         </h3>
 
         {article.excerpt && (
@@ -166,7 +176,7 @@ export function ArticleCard({
 
         <p className="text-[11px] text-gray-400 mt-auto pt-2 border-t border-gray-100">
           {article.author?.full_name && (
-            <span className="font-medium text-gray-500">{article.author.full_name} · </span>
+            <span className="font-medium text-gray-500">By {article.author.full_name} · </span>
           )}
           <time dateTime={article.published_at ?? undefined}>
             {relativeTime(article.published_at)}
