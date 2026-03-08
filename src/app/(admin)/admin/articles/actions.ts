@@ -39,6 +39,7 @@ function parseFormData(formData: FormData): Record<string, unknown> {
   const breakingRaw = (formData.get('breaking_expires_at') as string | null) ?? ''
   const featuredRaw = (formData.get('featured_rank') as string | null) ?? ''
   const isBreaking = formData.get('is_breaking') === 'on'
+  const isFeatured = formData.get('is_featured') === 'on'
 
   return {
     title: formData.get('title') ?? '',
@@ -54,6 +55,7 @@ function parseFormData(formData: FormData): Record<string, unknown> {
     og_description: formData.get('og_description') ?? '',
     og_image_url: formData.get('og_image_url') ?? '',
     canonical_url: formData.get('canonical_url') ?? '',
+    is_featured: isFeatured,
     is_breaking: isBreaking,
     breaking_expires_at: breakingRaw ? new Date(breakingRaw).toISOString() : '',
     featured_rank: featuredRaw ? Number(featuredRaw) : null,
@@ -85,6 +87,7 @@ function buildDbPayload(input: ArticleFormInput) {
     og_description: input.og_description || null,
     og_image_url: input.og_image_url || null,
     canonical_url: input.canonical_url || null,
+    is_featured: input.is_featured,
     is_breaking: input.is_breaking,
     breaking_expires_at: input.breaking_expires_at || null,
     featured_rank: input.featured_rank ?? null,

@@ -11,10 +11,13 @@ interface HeroCarouselProps {
   articles: ArticleWithRelations[]
 }
 
+const SWIPE_THRESHOLD = 50 // px
+
 export function HeroCarousel({ articles }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartX = useRef<number | null>(null)
   const count = articles.length
 
   const goTo = useCallback(
@@ -31,6 +34,19 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [count, paused])
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const delta = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(delta) >= SWIPE_THRESHOLD) {
+      delta > 0 ? next() : prev()
+    }
+    touchStartX.current = null
+  }
+
   if (count === 0) return null
 
   const article = articles[current]
@@ -40,10 +56,12 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
       className="relative bg-brand-dark text-white overflow-hidden group/carousel"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       aria-label="Featured stories carousel"
       aria-roledescription="carousel"
     >
-      {/* Slides — cross-fade via opacity */}
+      {/* Slides — cross-fade */}
       <div className="relative aspect-[16/9] w-full">
         {articles.map((a, i) => (
           <div
@@ -58,7 +76,7 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
                 src={a.hero_image_url}
                 alt={a.hero_image_alt ?? a.title}
                 fill
-                className="object-cover opacity-75"
+                className="object-cover"
                 priority={i === 0}
                 sizes="(max-width: 768px) 100vw, 66vw"
               />
@@ -66,21 +84,30 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
           </div>
         ))}
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent z-20 pointer-events-none" />
+        {/* Gradient overlay — strong bottom, fading up */}
+        <div
+          className="absolute inset-0 z-20 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0) 100%)',
+          }}
+        />
 
-        {/* Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-30">
-          {article.category && (
+        {/* Category badge — top-left */}
+        {article.category && (
+          <div className="absolute top-3 left-3 z-30">
             <CategoryBadge
               name={article.category.name}
               href={`/category/${article.category.slug}`}
               variant="overlay"
               size="md"
-              className="mb-2 self-start"
             />
-          )}
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight mb-2 text-white">
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-30">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight mb-2 text-white drop-shadow-sm">
             <Link
               href={`/article/${article.slug}`}
               className="hover:underline underline-offset-2"
@@ -89,7 +116,7 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
             </Link>
           </h2>
           {article.excerpt && (
-            <p className="text-sm text-gray-300 line-clamp-2 mb-2 hidden md:block leading-relaxed">
+            <p className="text-sm text-gray-200 line-clamp-2 mb-2 hidden md:block leading-relaxed">
               {article.excerpt}
             </p>
           )}
@@ -107,7 +134,7 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
         {count > 1 && (
           <button
             onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 flex items-center justify-center text-white opacity-0 group-hover/carousel:opacity-100 focus:opacity-100 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 flex items-center justify-center text-white opacity-0 group-hover/carousel:opacity-100 focus:opacity-100 transition-all duration-200 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Previous story"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
@@ -120,7 +147,7 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
         {count > 1 && (
           <button
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 flex items-center justify-center text-white opacity-0 group-hover/carousel:opacity-100 focus:opacity-100 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 flex items-center justify-center text-white opacity-0 group-hover/carousel:opacity-100 focus:opacity-100 transition-all duration-200 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Next story"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
@@ -136,7 +163,7 @@ export function HeroCarousel({ articles }: HeroCarouselProps) {
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className={`rounded-full transition-all duration-300 focus:outline-none ${
+                className={`rounded-full transition-all duration-300 focus:outline-none shadow-sm ${
                   i === current
                     ? 'w-5 h-2 bg-white'
                     : 'w-2 h-2 bg-white/40 hover:bg-white/70'

@@ -225,7 +225,7 @@ function KpiCard({
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 
-export function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     PUBLISHED: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
     DRAFT:     'bg-slate-100 text-slate-600 border border-slate-200',

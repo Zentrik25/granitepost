@@ -17,7 +17,7 @@ export function ArticleCard({
 }: ArticleCardProps) {
   if (variant === 'compact') {
     return (
-      <article className="group flex gap-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-3 overflow-hidden">
+      <article className="group flex gap-3 bg-white rounded-xl border border-gray-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 p-3 overflow-hidden">
         {article.hero_image_url && (
           <div className="relative w-[72px] h-[72px] flex-shrink-0 overflow-hidden rounded-lg">
             <Image
@@ -105,7 +105,7 @@ export function ArticleCard({
 
   // Default card
   return (
-    <article className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
+    <article className="group bg-white rounded-xl border border-gray-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
       {article.hero_image_url && (
         <div className="relative aspect-[16/9] w-full overflow-hidden flex-shrink-0">
           <Image

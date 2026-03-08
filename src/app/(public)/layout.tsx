@@ -1,6 +1,6 @@
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
-import { getTopLevelCategories } from '@/lib/queries/categories'
+import { getAllCategories } from '@/lib/queries/categories'
 import { getSiteSettings } from '@/lib/settings/queries'
 
 export default async function PublicLayout({
@@ -9,7 +9,7 @@ export default async function PublicLayout({
   children: React.ReactNode
 }) {
   const [categories, settings] = await Promise.all([
-    getTopLevelCategories(),
+    getAllCategories(),
     getSiteSettings(),
   ])
 

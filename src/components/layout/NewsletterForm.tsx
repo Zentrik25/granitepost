@@ -37,25 +37,24 @@ export function NewsletterForm() {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-md">
-      {/* Card header — gradient */}
-      <div className="bg-granite-gradient px-5 py-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-granite-accent mb-1">
+    <div className="rounded-xl overflow-hidden shadow-md" style={{ background: '#1C2B3A' }}>
+      {/* Header */}
+      <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#F0A318' }}>
           Newsletter
         </p>
         <h3 className="font-black text-base text-white leading-snug">
           Zimbabwe news in your inbox
         </h3>
-      </div>
-
-      {/* Card body */}
-      <div className="bg-white px-5 py-4 border border-t-0 border-granite-muted rounded-b-xl">
-        <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+        <p className="text-xs mt-1.5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
           Get the biggest stories delivered daily. Unsubscribe at any time.
         </p>
+      </div>
 
+      {/* Form body */}
+      <div className="px-5 py-4">
         {state === 'success' ? (
-          <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+          <p className="text-sm text-green-300 bg-green-900/30 border border-green-700/40 rounded-lg px-3 py-2">
             {message}
           </p>
         ) : (
@@ -66,15 +65,19 @@ export function NewsletterForm() {
               required
               placeholder="your@email.com"
               disabled={state === 'submitting'}
-              className="w-full border border-granite-muted rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-granite-primary/40 focus:border-granite-primary disabled:opacity-50 transition-colors"
+              className="w-full rounded-lg text-sm px-3 py-2 bg-transparent text-white placeholder:text-white/40 focus:outline-none disabled:opacity-50 transition-colors"
+              style={{ border: '1px solid #2E4A62' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#F0A318' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#2E4A62' }}
             />
             {state === 'error' && (
-              <p className="text-xs text-red-600">{message}</p>
+              <p className="text-xs text-red-400">{message}</p>
             )}
             <button
               type="submit"
               disabled={state === 'submitting'}
-              className="w-full bg-granite-gradient text-white text-sm font-semibold rounded-lg py-2.5 hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-granite-primary/50 focus:ring-offset-2"
+              className="w-full text-white text-sm font-bold rounded-lg py-2.5 hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-transparent shadow-sm"
+              style={{ background: 'linear-gradient(90deg, #C8820A, #F0A318)' }}
             >
               {state === 'submitting' ? (
                 <span className="flex items-center justify-center gap-2">
