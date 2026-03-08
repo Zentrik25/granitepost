@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Dashboard — Admin' }
@@ -9,7 +10,6 @@ async function getDashboardStats(supabase: Awaited<ReturnType<typeof createClien
     supabase.from('comments').select('status', { count: 'exact', head: true }).eq('status', 'PENDING'),
     supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).eq('confirmed', true),
   ])
-
   return {
     totalArticles: articles.count ?? 0,
     pendingComments: comments.count ?? 0,
@@ -20,7 +20,6 @@ async function getDashboardStats(supabase: Awaited<ReturnType<typeof createClien
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
-  // Stats and recent articles are independent — run in parallel.
   const [stats, recentResult] = await Promise.all([
     getDashboardStats(supabase),
     supabase
@@ -33,49 +32,85 @@ export default async function AdminDashboard() {
   const recentArticles = recentResult.data
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-black">Dashboard</h1>
+    <div className="space-y-8 max-w-6xl">
+      {/* Page heading */}
+      <div>
+        <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Overview of your newsroom</p>
+      </div>
 
-      {/* Stats */}
+      {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Total Articles" value={stats.totalArticles} />
-        <StatCard label="Pending Comments" value={stats.pendingComments} accent />
-        <StatCard label="Newsletter Subscribers" value={stats.subscribers} />
+        <StatCard
+          label="Total Articles"
+          value={stats.totalArticles}
+          icon="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8"
+          gradient="linear-gradient(135deg, #142B6F 0%, #0D1E50 100%)"
+        />
+        <StatCard
+          label="Pending Comments"
+          value={stats.pendingComments}
+          icon="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+          gradient="linear-gradient(135deg, #d97706 0%, #b45309 100%)"
+          accent
+        />
+        <StatCard
+          label="Subscribers"
+          value={stats.subscribers}
+          icon="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6"
+          gradient="linear-gradient(135deg, #059669 0%, #047857 100%)"
+        />
       </div>
 
       {/* Recent articles */}
       <section>
-        <h2 className="text-base font-bold mb-3">Recent Articles</h2>
-        <div className="bg-white border border-brand-border overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-gray-800">Recent Articles</h2>
+          <Link
+            href="/admin/articles"
+            className="text-xs font-semibold text-granite-primary hover:underline"
+          >
+            View all →
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-brand-gray border-b border-brand-border">
-              <tr>
-                <th className="text-left px-4 py-2.5 font-semibold">Title</th>
-                <th className="text-left px-4 py-2.5 font-semibold">Status</th>
-                <th className="text-left px-4 py-2.5 font-semibold hidden md:table-cell">Updated</th>
-                <th className="px-4 py-2.5"></th>
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/80">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Title</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Updated</th>
+                <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border">
+            <tbody className="divide-y divide-gray-50">
               {(recentArticles ?? []).map((article) => (
-                <tr key={article.id} className="hover:bg-brand-gray/50">
-                  <td className="px-4 py-3 font-medium line-clamp-1 max-w-xs">{article.title}</td>
-                  <td className="px-4 py-3">
+                <tr key={article.id} className="hover:bg-blue-50/20 transition-colors">
+                  <td className="px-5 py-3.5 font-medium text-gray-800 line-clamp-1 max-w-xs">{article.title}</td>
+                  <td className="px-5 py-3.5">
                     <StatusBadge status={article.status} />
                   </td>
-                  <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                  <td className="px-5 py-3.5 text-gray-400 text-xs hidden md:table-cell">
                     {new Date(article.updated_at).toLocaleDateString('en-GB')}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <a
+                  <td className="px-5 py-3.5 text-right">
+                    <Link
                       href={`/admin/articles/${article.id}`}
-                      className="text-xs font-semibold text-brand-red hover:underline"
+                      className="text-xs font-semibold text-granite-primary hover:underline"
                     >
                       Edit
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))}
+              {(recentArticles ?? []).length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-10 text-center text-gray-400">
+                    No articles yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -84,33 +119,54 @@ export default async function AdminDashboard() {
   )
 }
 
+// ── Stat card ─────────────────────────────────────────────────────────────────
+
 function StatCard({
   label,
   value,
+  icon,
+  gradient,
   accent = false,
 }: {
   label: string
   value: number
+  icon: string
+  gradient: string
   accent?: boolean
 }) {
   return (
-    <div className={`bg-white border p-5 ${accent ? 'border-brand-red' : 'border-brand-border'}`}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted mb-1">{label}</p>
-      <p className={`text-3xl font-black ${accent ? 'text-brand-red' : 'text-brand-dark'}`}>{value}</p>
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+        style={{ background: gradient }}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.75}
+          strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true">
+          <path d={icon} />
+        </svg>
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-0.5">{label}</p>
+        <p className={`text-3xl font-black leading-none ${accent ? 'text-amber-600' : 'text-gray-900'}`}>
+          {value.toLocaleString()}
+        </p>
+      </div>
     </div>
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const colours: Record<string, string> = {
-    PUBLISHED: 'bg-green-100 text-green-800',
-    DRAFT: 'bg-gray-100 text-gray-700',
-    REVIEW: 'bg-yellow-100 text-yellow-800',
-    ARCHIVED: 'bg-red-100 text-red-700',
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+export function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    PUBLISHED: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    DRAFT:     'bg-slate-100 text-slate-600 border border-slate-200',
+    REVIEW:    'bg-amber-50 text-amber-700 border border-amber-200',
+    ARCHIVED:  'bg-rose-50 text-rose-600 border border-rose-200',
   }
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 ${colours[status] ?? 'bg-gray-100 text-gray-700'}`}>
-      {status}
+    <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full ${styles[status] ?? 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+      {status.charAt(0) + status.slice(1).toLowerCase()}
     </span>
   )
 }
