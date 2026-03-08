@@ -47,6 +47,7 @@ export function ArticleForm({
   const [title, setTitle] = useState(article?.title ?? '')
   const [slug, setSlug] = useState(article?.slug ?? '')
   const [isBreaking, setIsBreaking] = useState(article?.is_breaking ?? false)
+  const [isFeatured, setIsFeatured] = useState(article?.is_featured ?? false)
   const [pickedTags, setPickedTags] = useState<Set<string>>(new Set(selectedTagIds))
 
   function handleTitleChange(val: string) {
@@ -200,6 +201,17 @@ export function ArticleForm({
         </div>
 
         <div className="flex flex-wrap gap-6 items-start">
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <input
+              type="checkbox"
+              name="is_featured"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+              className="w-4 h-4 accent-brand-red"
+            />
+            Featured (hero carousel)
+          </label>
+
           <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
             <input
               type="checkbox"

@@ -6,12 +6,28 @@ import { usePathname } from 'next/navigation'
 import type { Category } from '@/types'
 
 interface MobileNavProps {
-  categories: Category[]
+  allCategories: Category[]
   siteName: string
 }
 
-export function MobileNav({ categories, siteName }: MobileNavProps) {
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  )
+}
+
+export function MobileNav({ allCategories, siteName }: MobileNavProps) {
   const [open, setOpen] = useState(false)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const pathname = usePathname()
 
   useEffect(() => { setOpen(false) }, [pathname])
@@ -20,6 +36,14 @@ export function MobileNav({ categories, siteName }: MobileNavProps) {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
+
+  const topLevel = allCategories.filter((c) => !c.parent_id)
+  const childrenOf = (parentId: string) =>
+    allCategories.filter((c) => c.parent_id === parentId)
+
+  function toggleExpand(id: string) {
+    setExpandedId((prev) => (prev === id ? null : id))
+  }
 
   return (
     <>
@@ -83,16 +107,60 @@ export function MobileNav({ categories, siteName }: MobileNavProps) {
                 Home
               </Link>
             </li>
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <Link
-                  href={`/category/${cat.slug}`}
-                  className="block px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-granite-accent transition-colors rounded-lg mx-2"
-                >
-                  {cat.name}
-                </Link>
-              </li>
-            ))}
+
+            {topLevel.map((cat) => {
+              const subs = childrenOf(cat.id)
+              const isExpanded = expandedId === cat.id
+
+              return (
+                <li key={cat.id}>
+                  {subs.length > 0 ? (
+                    <>
+                      {/* Parent row — click to expand, or navigate via arrow */}
+                      <div className="flex items-center mx-2">
+                        <Link
+                          href={`/category/${cat.slug}`}
+                          className="flex-1 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-granite-accent transition-colors rounded-lg"
+                        >
+                          {cat.name}
+                        </Link>
+                        <button
+                          onClick={() => toggleExpand(cat.id)}
+                          className="p-2 text-white/50 hover:text-granite-accent transition-colors rounded-lg"
+                          aria-label={isExpanded ? `Collapse ${cat.name}` : `Expand ${cat.name}`}
+                          aria-expanded={isExpanded}
+                        >
+                          <ChevronIcon open={isExpanded} />
+                        </button>
+                      </div>
+
+                      {/* Subcategories */}
+                      {isExpanded && (
+                        <ul className="ml-6 mr-2 mb-1 border-l border-white/15 pl-3 space-y-0.5">
+                          {subs.map((sub) => (
+                            <li key={sub.id}>
+                              <Link
+                                href={`/category/${sub.slug}`}
+                                className="block px-3 py-2 text-sm text-white/60 hover:text-granite-accent hover:bg-white/5 transition-colors rounded-lg"
+                              >
+                                {sub.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={`/category/${cat.slug}`}
+                      className="block px-5 py-2.5 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-granite-accent transition-colors rounded-lg mx-2"
+                    >
+                      {cat.name}
+                    </Link>
+                  )}
+                </li>
+              )
+            })}
           </ul>
 
           <div className="border-t border-white/20 mt-4 pt-4 px-2">

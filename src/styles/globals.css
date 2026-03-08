@@ -10,44 +10,62 @@
     --font-sans: ui-sans-serif, system-ui, sans-serif;
     --font-serif: Georgia, "Times New Roman", serif;
 
-    /* Brand colors */
+    /* ── Legacy tokens kept for backward-compat ── */
+    --brand-red:    #BB1919;
+    --brand-dark:   #0D1117;
+    --brand-gray:   #F2F4F6;
+    --brand-border: #D8DDE5;
+    --brand-muted:  #6B7888;
 
-    --brand-red: #BB1919;
-    --brand-dark: #1A1A1A;
-    --brand-gray: #F5F5F5;
-    --brand-border: #E0E0E0;
-    --brand-muted: #767676;
-
-    /* Granite Post colors */
-
-    --granite-primary: #142B6F;
-    --granite-dark: #0D1E50;
-    --granite-accent: #FFD601;
+    /* ── Granite Post core palette (updated to brand system) ── */
+    --granite-primary: #1C2B3A;
+    --granite-dark:    #0D1117;
+    --granite-accent:  #F0A318;
     --granite-surface: #FFFFFF;
-    --granite-muted: #E1DEE6;
+    --granite-muted:   #D8DDE5;
+
+    /* ── The Granite Post brand system ── */
+    --brand-primary:   #1C2B3A;
+    --brand-secondary: #2E4A62;
+    --accent-amber:    #C8820A;
+    --accent-amber-lt: #F0A318;
+    --accent-crimson:  #B8282A;
+    --accent-teal:     #1A7A6E;
+    --bg-canvas:       #F2F4F6;
+    --bg-surface:      #FFFFFF;
+    --text-primary:    #0D1117;
+    --text-secondary:  #3A4654;
+    --text-muted:      #6B7888;
+    --text-link:       #1A5FA8;
   }
 
-  html {
+  /* ── No horizontal scroll, globally ── */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-white text-brand-dark antialiased;
+    @apply antialiased;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     font-family: var(--font-sans);
   }
 
-  h1,h2,h3,h4,h5,h6 {
+  h1, h2, h3, h4, h5, h6 {
     @apply font-bold leading-tight;
   }
 
-  /* Article body typography */
+  /* ── Article body typography ── */
 
   .article-body {
     @apply max-w-none;
     font-family: var(--font-serif);
     font-size: 1.0625rem;
     line-height: 1.85;
-    color: #1a1a1a;
+    color: var(--text-primary);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -74,8 +92,9 @@
   }
 
   .article-body blockquote {
-    @apply border-l-4 border-granite-accent pl-5 italic my-8;
-    color: #444;
+    @apply border-l-4 pl-5 italic my-8;
+    border-color: var(--accent-amber);
+    color: var(--text-secondary);
     font-size: 1.125rem;
     line-height: 1.8;
   }
@@ -89,14 +108,15 @@
   }
 
   .article-body a {
-    @apply text-granite-primary underline underline-offset-2;
-    text-decoration-color: rgba(20, 43, 111, 0.4);
+    color: var(--text-link);
+    @apply underline underline-offset-2;
+    text-decoration-color: rgba(26, 95, 168, 0.4);
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
   }
 
   .article-body a:hover {
-    @apply text-granite-dark;
-    text-decoration-color: rgba(13, 30, 80, 1);
+    color: var(--brand-primary);
+    text-decoration-color: var(--brand-primary);
   }
 
   .article-body img {
@@ -108,24 +128,37 @@
   }
 
   .article-body figcaption {
-    @apply text-xs text-brand-muted mt-2 italic text-center;
+    @apply text-xs italic text-center mt-2;
+    color: var(--text-muted);
   }
 
   .article-body hr {
-    @apply border-t border-granite-muted my-10;
+    @apply border-t my-10;
+    border-color: var(--granite-muted);
   }
 
   .article-body strong {
     @apply font-bold;
-    color: #111;
+    color: var(--text-primary);
   }
 
   .article-body code {
-    @apply text-sm bg-granite-muted px-1.5 py-0.5 rounded font-mono;
+    @apply text-sm px-1.5 py-0.5 rounded font-mono;
+    background-color: var(--granite-muted);
   }
 
   .article-body pre {
-    @apply bg-granite-muted rounded-sm p-4 my-6 overflow-x-auto text-sm font-mono;
+    @apply rounded-sm p-4 my-6 overflow-x-auto text-sm font-mono;
+    background-color: var(--granite-muted);
+  }
+
+  /* Utility: hide scrollbar while allowing scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
 }

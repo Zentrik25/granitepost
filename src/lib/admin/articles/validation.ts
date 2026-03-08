@@ -33,6 +33,7 @@ export const articleInputSchema = z
       .refine((v) => !v || /^https?:\/\//.test(v), { message: 'Must be a valid URL' })
       .optional()
       .or(z.literal('')),
+    is_featured: z.boolean().default(false),
     is_breaking: z.boolean().default(false),
     breaking_expires_at: z
       .string()

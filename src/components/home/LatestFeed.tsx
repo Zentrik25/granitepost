@@ -15,7 +15,7 @@ export function LatestFeed({ articles, hasMore = false, currentPage = 1 }: Lates
   return (
     <section aria-label="Latest news">
       <div className="flex items-center justify-between border-b-2 border-granite-primary pb-2 mb-4">
-        <h2 className="text-sm font-black uppercase tracking-widest">Latest News</h2>
+        <h2 className="text-sm font-black uppercase tracking-widest">Latest Updates</h2>
         <Link
           href="/search"
           className="text-xs font-semibold text-granite-primary hover:underline"

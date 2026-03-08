@@ -37,8 +37,9 @@ const ICONS: Record<string, string> = {
 const navItems: { label: string; href: string; icon: string; roles: UserRole[] }[] = [
   { label: 'Dashboard',  href: '/admin',            icon: 'dashboard',   roles: ['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR'] },
   { label: 'Articles',   href: '/admin/articles',   icon: 'articles',    roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
-  { label: 'Categories', href: '/admin/categories', icon: 'categories',  roles: ['ADMIN', 'EDITOR'] },
-  { label: 'Tags',       href: '/admin/tags',        icon: 'tags',        roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+  { label: 'Categories', href: '/admin/categories',    icon: 'categories',  roles: ['ADMIN', 'EDITOR'] },
+  { label: 'Subcategories', href: '/admin/subcategories', icon: 'categories', roles: ['ADMIN', 'EDITOR'] },
+  { label: 'Tags',       href: '/admin/tags',          icon: 'tags',        roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
   { label: 'Media',      href: '/admin/media',       icon: 'media',       roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
   { label: 'Comments',   href: '/admin/comments',    icon: 'comments',    roles: ['ADMIN', 'EDITOR', 'MODERATOR'] },
   { label: 'Newsletter', href: '/admin/newsletter',  icon: 'newsletter',  roles: ['ADMIN', 'EDITOR'] },

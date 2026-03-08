@@ -6,7 +6,7 @@ export const ARTICLE_SELECT = `
   id, title, slug, excerpt, body_html, status,
   hero_image_url, hero_image_alt, hero_image_caption, hero_image_credit,
   og_title, og_description, og_image_url, canonical_url,
-  is_breaking, breaking_expires_at, featured_rank, view_count,
+  is_breaking, breaking_expires_at, featured_rank, is_featured, view_count,
   published_at, created_at, updated_at,
   category:categories(id, name, slug),
   author:profiles(id, full_name, avatar_url),
@@ -51,6 +51,40 @@ export async function getHeroArticle(): Promise<ArticleWithRelations | null> {
 
   if (error || !data) return null
   return normaliseArticle(data as unknown as Record<string, unknown>)
+}
+
+/**
+ * Returns up to `limit` PUBLISHED articles where is_featured = true,
+ * ordered by published_at DESC. Falls back to the single most-recent
+ * PUBLISHED article if none are featured (so the hero carousel is never empty).
+ */
+export async function getFeaturedArticles(
+  limit = 4
+): Promise<ArticleWithRelations[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('articles')
+    .select(ARTICLE_SELECT)
+    .eq('status', 'PUBLISHED')
+    .eq('is_featured', true)
+    .order('published_at', { ascending: false })
+    .limit(limit)
+
+  if (data && data.length > 0) {
+    return data.map((d) => normaliseArticle(d as unknown as Record<string, unknown>))
+  }
+
+  // Fallback: most recent published article
+  const { data: fallback } = await supabase
+    .from('articles')
+    .select(ARTICLE_SELECT)
+    .eq('status', 'PUBLISHED')
+    .order('published_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (!fallback) return []
+  return [normaliseArticle(fallback as unknown as Record<string, unknown>)]
 }
 
 export async function getBreakingNews(): Promise<ArticleWithRelations[]> {

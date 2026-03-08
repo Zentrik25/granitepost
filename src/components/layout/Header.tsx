@@ -36,11 +36,11 @@ function SearchIcon({ className }: { className?: string }) {
 
 export function Header({ categories, settings }: HeaderProps) {
   return (
-    <header className="bg-granite-gradient sticky top-0 z-50 shadow-lg">
+    <header className="bg-granite-gradient sticky top-0 z-50 w-full overflow-hidden shadow-lg backdrop-blur-md border-b border-white/10">
       {/* ── Main row: menu | title | [spacer] | search | whatsapp ───────────── */}
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-3">
         {/* Mobile hamburger */}
-        <MobileNav categories={categories} siteName={settings.site_name} />
+        <MobileNav allCategories={categories} siteName={settings.site_name} />
 
         {/* Site name */}
         <Link href="/" className="flex flex-col shrink-0 mr-1">
@@ -87,25 +87,24 @@ export function Header({ categories, settings }: HeaderProps) {
           <SearchIcon className="w-5 h-5" />
         </Link>
 
-        {/* WhatsApp button — official green */}
+        {/* WhatsApp button — circular icon */}
         {settings.whatsapp_url ? (
           <a
             href={settings.whatsapp_url}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Join us on WhatsApp"
-            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-[#25D366] hover:bg-[#1ebe57] active:bg-[#18a84b] active:scale-95 transition-all duration-150 shrink-0 shadow-sm"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-[#25D366] hover:bg-[#1ebe57] active:bg-[#18a84b] active:scale-95 transition-all duration-150 shrink-0 shadow-md"
           >
-            <WhatsAppIcon className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline">WhatsApp</span>
+            <WhatsAppIcon className="w-5 h-5" />
           </a>
         ) : null}
       </div>
 
       {/* ── Category nav ──────────────────────────────────────────────────────── */}
       <nav className="border-t border-white/20" aria-label="Main navigation">
-        <div className="max-w-7xl mx-auto px-4 overflow-x-auto">
-          <ul className="flex text-sm font-semibold whitespace-nowrap text-white">
+        <div className="max-w-7xl mx-auto px-4 overflow-x-auto scrollbar-hide">
+          <ul className="flex text-sm font-semibold whitespace-nowrap text-white w-max min-w-full">
             <li>
               <Link
                 href="/"
@@ -114,7 +113,7 @@ export function Header({ categories, settings }: HeaderProps) {
                 Home
               </Link>
             </li>
-            {categories.slice(0, 8).map((cat) => (
+            {categories.filter((c) => !c.parent_id).slice(0, 8).map((cat) => (
               <li key={cat.id}>
                 <Link
                   href={`/category/${cat.slug}`}

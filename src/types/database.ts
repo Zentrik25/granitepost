@@ -139,6 +139,7 @@ export type Database = {
           is_breaking: boolean
           breaking_expires_at: string | null
           featured_rank: number | null
+          is_featured: boolean
           view_count: number
           published_at: string | null
           created_at: string
@@ -164,6 +165,7 @@ export type Database = {
           is_breaking?: boolean
           breaking_expires_at?: string | null
           featured_rank?: number | null
+          is_featured?: boolean
           view_count?: number
           published_at?: string | null
           created_at?: string
@@ -187,6 +189,7 @@ export type Database = {
           is_breaking?: boolean
           breaking_expires_at?: string | null
           featured_rank?: number | null
+          is_featured?: boolean
           published_at?: string | null
           updated_at?: string
         }

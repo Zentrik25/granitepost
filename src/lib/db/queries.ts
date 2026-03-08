@@ -22,6 +22,7 @@ export {
   getLatestArticles,
   getBreakingNews,
   getHeroArticle,
+  getFeaturedArticles,
   getArticlesByCategory,
   getArticlesByTag,
   searchArticles,
