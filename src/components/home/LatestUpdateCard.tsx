@@ -72,7 +72,7 @@ export function LatestUpdateCard({ article }: Props) {
           {author && article.published_at && <span className="mx-1">·</span>}
           {article.published_at && (
             <time dateTime={article.published_at}>
-              {relativeTime(article.published_at)}
+              {relativeTime(article.published_at ?? null)}
             </time>
           )}
         </p>

@@ -2,7 +2,9 @@
 // This page intentionally has no auth guard so you can test before auth is set up.
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import type { Category } from '@/types/database'
+import type { Database } from '@/types/database'
+
+type Category = Database['public']['Tables']['categories']['Row']
 
 export const revalidate = 60
 

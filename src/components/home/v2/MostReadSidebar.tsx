@@ -1,5 +1,10 @@
 import Link from 'next/link'
-import type { MostReadArticle } from '@/types'
+
+type MostReadArticle = {
+  article_id: string
+  slug: string
+  title: string
+}
 
 interface MostReadSidebarProps {
   articles: MostReadArticle[]
@@ -10,26 +15,28 @@ export function MostReadSidebar({ articles }: MostReadSidebarProps) {
 
   return (
     <aside aria-label="Most read">
-      <div className="flex items-center gap-3 mb-4 pb-2 border-b-2 border-gray-900">
+      <div className="mb-4 flex items-center gap-3 border-b-2 border-gray-900 pb-2">
         <h2 className="text-xs font-black uppercase tracking-widest text-gray-900">
           Most Read
         </h2>
       </div>
 
-      <ol className="space-y-0 divide-y divide-gray-100">
+      <ol className="divide-y divide-gray-100 space-y-0">
         {articles.map((article, index) => (
-          <li key={article.article_id} className="flex gap-3 py-3 items-start group">
+          <li
+            key={article.article_id}
+            className="group flex items-start gap-3 py-3"
+          >
             <span
-              className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-white"
               style={{ background: index === 0 ? '#B45309' : '#374151' }}
               aria-hidden="true"
             >
               {index + 1}
             </span>
-            <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-3 group-hover:text-amber-700 transition-colors">
-              <Link href={`/article/${article.slug}`}>
-                {article.title}
-              </Link>
+
+            <h3 className="line-clamp-3 text-sm font-semibold leading-snug text-gray-800 transition-colors group-hover:text-amber-700">
+              <Link href={`/article/${article.slug}`}>{article.title}</Link>
             </h3>
           </li>
         ))}

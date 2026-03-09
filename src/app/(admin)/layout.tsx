@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminHeader } from '@/components/admin/AdminHeader'
@@ -12,30 +13,41 @@ export default async function AdminLayout({
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    return <>{children}</>
+  if (userError || !user) {
+    redirect('/admin/login')
   }
 
-  const { data: roleData } = await supabase
+  const { data: roleData, error: roleError } = await supabase
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)
     .single()
 
-  if (!roleData) {
-    return <>{children}</>
+  if (roleError || !roleData?.role) {
+    redirect('/admin/login')
   }
 
   const role = roleData.role as UserRole
 
   return (
-    <div className="h-screen bg-brand-canvas flex overflow-hidden">
+    <div className="h-screen w-full bg-brand-canvas flex overflow-hidden">
       <AdminSidebar role={role} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <AdminHeader user={{ id: user.id, email: user.email ?? '' }} role={role} />
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
+
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        <AdminHeader
+          user={{
+            id: user.id,
+            email: user.email ?? '',
+          }}
+          role={role}
+        />
+
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          {children}
+        </main>
       </div>
     </div>
   )
