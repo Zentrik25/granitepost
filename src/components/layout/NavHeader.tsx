@@ -59,8 +59,11 @@ function Masthead({ name }: { name: string }) {
   )
 }
 
-export function NavHeader({ categories, settings }: NavHeaderProps) {
-  const today = getTodayLabel()
+  const [today, setToday] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    setToday(getTodayLabel())
+  }, [])
 
   return (
     <header
@@ -74,7 +77,7 @@ export function NavHeader({ categories, settings }: NavHeaderProps) {
           {/* Date — left */}
           <time
             dateTime={new Date().toISOString().slice(0, 10)}
-            className="text-[11px] font-medium tracking-wide text-white/55 uppercase"
+            className="text-[11px] font-medium tracking-wide text-white/55 uppercase h-4 min-w-[100px]"
           >
             {today}
           </time>
