@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import type { NavCategory } from '@/lib/queries/navigation'
 import type { SiteSettings } from '@/lib/settings/queries'
 import { DesktopNav } from '@/components/layout/DesktopNav'
@@ -20,7 +23,11 @@ function WhatsAppIcon() {
 function SearchIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
-      <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
+      <path
+        fillRule="evenodd"
+        d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+        clipRule="evenodd"
+      />
     </svg>
   )
 }
@@ -35,87 +42,81 @@ function getTodayLabel() {
   })
 }
 
-/** Newspaper-style masthead: THE  Granite  POST — centred absolutely in the bar */
+/** Newspaper-style masthead: THE Granite POST */
 function Masthead({ name }: { name: string }) {
   return (
     <Link
       href="/"
       aria-label={name}
-      className="absolute left-1/2 -translate-x-1/2 flex items-baseline gap-0 leading-none select-none"
+      className="absolute left-1/2 flex -translate-x-1/2 select-none items-baseline gap-0 leading-none"
     >
-      <span className="text-[13px] font-bold tracking-[0.22em] uppercase text-white mr-1.5 mb-px">
+      <span className="mr-1.5 mb-px text-[13px] font-bold uppercase tracking-[0.22em] text-white">
         The
       </span>
       <span
-        className="text-[26px] sm:text-[28px] font-bold text-white leading-none"
+        className="text-[26px] font-bold leading-none text-white sm:text-[28px]"
         style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
       >
         Granite
       </span>
-      <span className="text-[13px] font-bold tracking-[0.22em] uppercase text-white ml-1.5 mb-px">
+      <span className="ml-1.5 mb-px text-[13px] font-bold uppercase tracking-[0.22em] text-white">
         Post
       </span>
     </Link>
   )
 }
 
-  const [today, setToday] = React.useState<string | null>(null)
+export function NavHeader({ categories, settings }: NavHeaderProps) {
+  const [today, setToday] = useState<string>('')
 
-  React.useEffect(() => {
+  useEffect(() => {
     setToday(getTodayLabel())
   }, [])
 
   return (
     <header
       className="sticky top-0 z-50 w-full shadow-lg"
-      style={{ background: 'linear-gradient(135deg, #0D1117 0%, #1C2B3A 50%, #2E4A62 100%)' }}
+      style={{
+        background: 'linear-gradient(135deg, #0D1117 0%, #1C2B3A 50%, #2E4A62 100%)',
+      }}
     >
-      {/* ── Utility bar ─────────────────────────────────────────────────── */}
       <div className="border-b border-white/10" style={{ background: 'rgba(0,0,0,0.25)' }}>
-        <div className="max-w-7xl mx-auto px-4 h-8 flex items-center justify-between gap-4">
-
-          {/* Date — left */}
+        <div className="mx-auto flex h-8 max-w-7xl items-center justify-between gap-4 px-4">
           <time
             dateTime={new Date().toISOString().slice(0, 10)}
-            className="text-[11px] font-medium tracking-wide text-white/55 uppercase h-4 min-w-[100px]"
+            className="h-4 min-w-[100px] text-[11px] font-medium uppercase tracking-wide text-white/55"
           >
             {today}
           </time>
 
-          {/* WhatsApp — right, rounded-lg square button */}
           {settings.whatsapp_url && (
             <a
               href={settings.whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Join us on WhatsApp"
-              className="flex items-center gap-1.5 h-6 px-2.5 rounded-md text-white text-[11px] font-semibold transition-all duration-150 hover:brightness-110 active:scale-95"
+              className="flex h-6 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-semibold text-white transition-all duration-150 hover:brightness-110 active:scale-95"
               style={{ background: '#25D366' }}
             >
               <WhatsAppIcon />
-              <span className="hidden sm:inline tracking-wide">WhatsApp</span>
+              <span className="hidden tracking-wide sm:inline">WhatsApp</span>
             </a>
           )}
         </div>
       </div>
 
-      {/* ── Main brand bar ───────────────────────────────────────────────── */}
-      <div className="relative max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
-
-        {/* Hamburger — mobile only */}
+      <div className="relative mx-auto flex h-14 max-w-7xl items-center gap-3 px-4">
         <HamburgerMenu categories={categories} siteName={settings.site_name} />
 
-        {/* Masthead — centred */}
         <Masthead name={settings.site_name} />
 
         <div className="flex-1" />
 
-        {/* Search — desktop pill */}
         <form
           action="/search"
           method="GET"
           role="search"
-          className="hidden md:flex items-center gap-0 group"
+          className="group hidden items-center gap-0 md:flex"
         >
           <input
             type="search"
@@ -123,45 +124,43 @@ function Masthead({ name }: { name: string }) {
             placeholder="Search stories…"
             aria-label="Search articles"
             className="
-              w-44 lg:w-56 h-9 pl-4 pr-2 text-[13px] rounded-l-full
-              bg-white/8 border border-white/15 border-r-0 text-white
+              h-9 w-44 rounded-l-full border border-r-0 border-white/15
+              bg-white/8 pl-4 pr-2 text-[13px] text-white
               placeholder:text-white/35
-              focus:outline-none focus:bg-white/14 focus:border-white/35
               transition-all duration-200
+              focus:border-white/35 focus:bg-white/14 focus:outline-none
+              lg:w-56
             "
           />
           <button
             type="submit"
             aria-label="Submit search"
             className="
-              h-9 w-10 rounded-r-full shrink-0
-              flex items-center justify-center
-              bg-white/8 border border-white/15 border-l-0
-              text-white/60 hover:text-white hover:bg-white/14
-              transition-all duration-200
+              flex h-9 w-10 shrink-0 items-center justify-center rounded-r-full
+              border border-l-0 border-white/15 bg-white/8
+              text-white/60 transition-all duration-200
+              hover:bg-white/14 hover:text-white
             "
           >
             <SearchIcon />
           </button>
         </form>
 
-        {/* Search — mobile icon button */}
         <Link
           href="/search"
           aria-label="Search"
           className="
-            md:hidden w-9 h-9 rounded-lg shrink-0
-            flex items-center justify-center
-            bg-white/8 border border-white/15
-            text-white/70 hover:text-white hover:bg-white/14
-            transition-all duration-150
+            flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
+            border border-white/15 bg-white/8
+            text-white/70 transition-all duration-150
+            hover:bg-white/14 hover:text-white
+            md:hidden
           "
         >
           <SearchIcon />
         </Link>
       </div>
 
-      {/* ── Category navigation bar — desktop ───────────────────────────── */}
       <DesktopNav categories={categories} />
     </header>
   )
