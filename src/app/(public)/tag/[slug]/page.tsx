@@ -5,12 +5,13 @@ import { Pagination } from '@/components/ui/Pagination'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getTagBySlug } from '@/lib/queries/tags'
 import { getArticlesByTag } from '@/lib/queries/articles'
+import type { ArticleWithRelations } from '@/types'
 import { buildBreadcrumbSchema, buildWebPageSchema, toJsonLd } from '@/lib/seo/schema'
 
 export const revalidate = 120
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thegranite.co.zw'
+const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'The Granite Post'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -88,9 +89,10 @@ export default async function TagPage({ params, searchParams }: Props) {
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {result.data.map((article) => (
+            {(result.data as ArticleWithRelations[]).map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
+
           </div>
         )}
 

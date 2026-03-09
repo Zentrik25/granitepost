@@ -10,22 +10,18 @@ export function LatestUpdatesSection({ articles }: Props) {
 
   return (
     <section aria-label="Latest updates">
-
-      {/* Section header */}
-      <div className="flex items-center gap-3 mb-5">
-        <h2 className="text-xs font-black uppercase tracking-widest text-brand-primary whitespace-nowrap">
+      <div className="mb-5 flex items-center gap-3">
+        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-brand-primary">
           Latest Updates
         </h2>
         <div className="flex-1 border-b-2 border-brand-primary" />
       </div>
 
-      {/* Single-column compact feed */}
       <div className="space-y-3">
         {articles.map((article) => (
           <LatestUpdateCard key={article.id} article={article} />
         ))}
       </div>
-
     </section>
   )
 }

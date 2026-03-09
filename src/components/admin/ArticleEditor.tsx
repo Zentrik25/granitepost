@@ -3,10 +3,19 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Article } from '@/types'
+import type { Database } from '@/types/database'
 
-interface Category { id: string; name: string }
-interface Tag { id: string; name: string }
+type Article = Database['public']['Tables']['articles']['Row']
+
+interface Category {
+  id: string
+  name: string
+}
+
+interface Tag {
+  id: string
+  name: string
+}
 
 interface ArticleEditorProps {
   article?: Article
@@ -17,6 +26,7 @@ interface ArticleEditorProps {
 }
 
 const STATUSES = ['DRAFT', 'REVIEW', 'PUBLISHED', 'ARCHIVED'] as const
+type ArticleStatus = (typeof STATUSES)[number]
 
 export function ArticleEditor({
   article,
@@ -35,7 +45,7 @@ export function ArticleEditor({
     slug: article?.slug ?? '',
     excerpt: article?.excerpt ?? '',
     body_html: article?.body_html ?? '',
-    status: article?.status ?? 'DRAFT',
+    status: (article?.status as ArticleStatus | null) ?? 'DRAFT',
     category_id: article?.category_id ?? '',
     hero_image_url: article?.hero_image_url ?? '',
     hero_image_alt: article?.hero_image_alt ?? '',
@@ -75,14 +85,20 @@ export function ArticleEditor({
     )
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setSuccess(null)
 
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not authenticated.'); return }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setError('Not authenticated.')
+      return
+    }
 
     startTransition(async () => {
       const payload = {
@@ -112,29 +128,66 @@ export function ArticleEditor({
           .insert({ ...payload, author_id: user.id })
           .select('id')
           .single()
-        if (err || !data) { setError(err?.message ?? 'Failed to create article.'); return }
+
+        if (err || !data) {
+          setError(err?.message ?? 'Failed to create article.')
+          return
+        }
+
         articleId = data.id
       } else {
+        if (!article?.id) {
+          setError('Missing article id.')
+          return
+        }
+
         const { error: err } = await supabase
           .from('articles')
           .update(payload)
-          .eq('id', article!.id)
-        if (err) { setError(err.message); return }
-        articleId = article!.id
+          .eq('id', article.id)
+
+        if (err) {
+          setError(err.message)
+          return
+        }
+
+        articleId = article.id
       }
 
-      // Sync tags — delete existing then insert
-      await supabase.from('article_tags').delete().eq('article_id', articleId)
+      const { error: deleteTagsError } = await supabase
+        .from('article_tags')
+        .delete()
+        .eq('article_id', articleId)
+
+      if (deleteTagsError) {
+        setError(deleteTagsError.message)
+        return
+      }
+
       if (pickedTags.length > 0) {
-        await supabase.from('article_tags').insert(
-          pickedTags.map((tag_id) => ({ article_id: articleId, tag_id }))
-        )
+        const { error: insertTagsError } = await supabase
+          .from('article_tags')
+          .insert(
+            pickedTags.map((tag_id) => ({
+              article_id: articleId,
+              tag_id,
+            }))
+          )
+
+        if (insertTagsError) {
+          setError(insertTagsError.message)
+          return
+        }
       }
 
       setSuccess(mode === 'create' ? 'Article created.' : 'Article saved.')
+
       if (mode === 'create') {
         router.push(`/admin/articles/${articleId}`)
+        return
       }
+
+      router.refresh()
     })
   }
 
@@ -148,9 +201,10 @@ export function ArticleEditor({
       <label className="block text-xs font-semibold mb-1">
         {label} {required && <span className="text-brand-red">*</span>}
       </label>
+
       {type === 'textarea' ? (
         <textarea
-          value={form[key] as string}
+          value={String(form[key] ?? '')}
           onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
           rows={3}
           required={required}
@@ -159,7 +213,7 @@ export function ArticleEditor({
       ) : (
         <input
           type={type}
-          value={form[key] as string}
+          value={String(form[key] ?? '')}
           onChange={(e) =>
             key === 'title'
               ? handleTitleChange(e.target.value)
@@ -179,18 +233,22 @@ export function ArticleEditor({
           {error}
         </div>
       )}
+
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3">
           {success}
         </div>
       )}
 
-      {/* Core fields */}
       <div className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">Content</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">
+          Content
+        </h2>
+
         {field('Title', 'title', 'text', true)}
         {field('Slug', 'slug', 'text', true)}
         {field('Excerpt', 'excerpt', 'textarea')}
+
         <div>
           <label className="block text-xs font-semibold mb-1">
             Body (HTML) <span className="text-brand-red">*</span>
@@ -206,58 +264,84 @@ export function ArticleEditor({
         </div>
       </div>
 
-      {/* Meta */}
       <div className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">Publish</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">
+          Publish
+        </h2>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold mb-1">Status</label>
             <select
               value={form.status}
-              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as typeof STATUSES[number] }))}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  status: e.target.value as ArticleStatus,
+                }))
+              }
               className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
             >
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           </div>
+
           <div>
             <label className="block text-xs font-semibold mb-1">Category</label>
             <select
               value={form.category_id}
-              onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, category_id: e.target.value }))
+              }
               className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
             >
               <option value="">— No category —</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
           </div>
         </div>
+
         <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
               checked={form.is_breaking}
-              onChange={(e) => setForm((f) => ({ ...f, is_breaking: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, is_breaking: e.target.checked }))
+              }
               className="w-4 h-4 accent-brand-red"
             />
             Breaking news
           </label>
+
           {form.is_breaking && (
             <div>
-              <label className="block text-xs font-semibold mb-1">Breaking expires at</label>
+              <label className="block text-xs font-semibold mb-1">
+                Breaking expires at
+              </label>
               <input
                 type="datetime-local"
                 value={form.breaking_expires_at}
-                onChange={(e) => setForm((f) => ({ ...f, breaking_expires_at: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    breaking_expires_at: e.target.value,
+                  }))
+                }
                 className="border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
               />
             </div>
           )}
         </div>
+
         <div>
           <label className="block text-xs font-semibold mb-1">
             Featured rank (lower = higher priority; blank = not featured)
@@ -266,16 +350,20 @@ export function ArticleEditor({
             type="number"
             min={1}
             value={form.featured_rank}
-            onChange={(e) => setForm((f) => ({ ...f, featured_rank: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, featured_rank: e.target.value }))
+            }
             placeholder="e.g. 1 = hero"
             className="w-40 border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
           />
         </div>
       </div>
 
-      {/* Tags */}
       <div className="bg-white border border-brand-border p-6">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted mb-3">Tags</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted mb-3">
+          Tags
+        </h2>
+
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <button
@@ -291,33 +379,37 @@ export function ArticleEditor({
               {tag.name}
             </button>
           ))}
+
           {tags.length === 0 && (
-            <p className="text-xs text-brand-muted">No tags yet — create them in the Tags section.</p>
+            <p className="text-xs text-brand-muted">
+              No tags yet — create them in the Tags section.
+            </p>
           )}
         </div>
       </div>
 
-      {/* Hero image */}
       <div className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">Hero Image</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">
+          Hero Image
+        </h2>
+
         {field('Image URL', 'hero_image_url', 'url')}
         {field('Alt Text', 'hero_image_alt')}
         {field('Caption', 'hero_image_caption')}
         {field('Credit (photographer / agency)', 'hero_image_credit')}
       </div>
 
-      {/* OG / SEO */}
       <div className="bg-white border border-brand-border p-6 space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-brand-muted">
           SEO / Open Graph
         </h2>
+
         {field('OG Title (leave blank to use article title)', 'og_title')}
         {field('OG Description (leave blank to use excerpt)', 'og_description', 'textarea')}
         {field('OG Image URL (>=1200px wide, 16:9)', 'og_image_url', 'url')}
         {field('Canonical URL (leave blank to use default)', 'canonical_url', 'url')}
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3 sticky bottom-0 bg-gray-50 py-4">
         <button
           type="submit"
@@ -326,16 +418,19 @@ export function ArticleEditor({
         >
           {isPending ? 'Saving…' : mode === 'create' ? 'Create Article' : 'Save Changes'}
         </button>
+
         <a
           href="/admin/articles"
           className="px-6 py-2.5 border border-brand-border text-sm font-semibold hover:bg-brand-gray transition-colors"
         >
           Cancel
         </a>
+
         {mode === 'edit' && article?.status === 'PUBLISHED' && (
           <a
             href={`/article/${article.slug}`}
             target="_blank"
+            rel="noreferrer"
             className="px-6 py-2.5 border border-brand-border text-sm font-semibold hover:bg-brand-gray transition-colors ml-auto"
           >
             View live &rarr;

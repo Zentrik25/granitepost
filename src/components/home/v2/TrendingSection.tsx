@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ArticleWithRelations } from '@/types'
 import { CategoryBadge } from '@/components/ui/CategoryBadge'
 import { relativeTime } from '@/lib/utils/slug'
+import type { ArticleWithRelations } from '@/types'
 
 interface Props {
   articles: ArticleWithRelations[]
@@ -14,18 +14,27 @@ function getRankStyle(rank: number): string {
   return 'bg-slate-500'
 }
 
-function TrendCard({ article, rank }: { article: ArticleWithRelations; rank: number }) {
+function TrendCard({
+  article,
+  rank,
+}: {
+  article: ArticleWithRelations
+  rank: number
+}) {
   const href = `/article/${article.slug}`
   const category = article.category
   const author = article.author?.full_name
 
   return (
-    <article className="relative flex gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group">
-      {/* Cover link */}
-      <Link href={href} className="absolute inset-0 z-0" aria-hidden="true" tabIndex={-1} />
+    <article className="group relative flex gap-4 overflow-hidden rounded-xl bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
+      <Link
+        href={href}
+        className="absolute inset-0 z-0"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
 
-      {/* Thumbnail */}
-      <div className="relative w-24 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-brand-canvas to-brand-border">
+      <div className="relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-brand-canvas to-brand-border">
         {article.hero_image_url ? (
           <Image
             src={article.hero_image_url}
@@ -36,27 +45,33 @@ function TrendCard({ article, rank }: { article: ArticleWithRelations; rank: num
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center opacity-25">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-brand-muted" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-7 w-7 text-brand-muted"
+              aria-hidden="true"
+            >
               <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col gap-1.5 min-w-0 flex-1">
-
-        {/* Rank + Trending badge + Category */}
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0 ${getRankStyle(rank)}`}
+            className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-black text-white ${getRankStyle(
+              rank
+            )}`}
             aria-label={`Rank ${rank}`}
           >
             {rank}
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-px rounded bg-accent-amber text-white flex-shrink-0">
+
+          <span className="flex-shrink-0 rounded bg-accent-amber px-2 py-px text-[10px] font-bold uppercase tracking-wide text-white">
             Trending
           </span>
+
           {category && (
             <CategoryBadge
               name={category.name}
@@ -66,25 +81,24 @@ function TrendCard({ article, rank }: { article: ArticleWithRelations; rank: num
           )}
         </div>
 
-        {/* Headline */}
         <Link
           href={href}
-          className="text-sm font-semibold leading-snug line-clamp-2 text-brand-primary group-hover:text-accent-amber transition-colors duration-150"
+          className="line-clamp-2 text-sm font-semibold leading-snug text-brand-primary transition-colors duration-150 group-hover:text-accent-amber"
         >
           {article.title}
         </Link>
 
-        {/* Author · time */}
-        <p className="text-xs text-brand-muted truncate">
+        <p className="truncate text-xs text-brand-muted">
           By {author ?? 'Admin'}
           {article.published_at && (
             <>
               {' · '}
-              <time dateTime={article.published_at}>{relativeTime(article.published_at)}</time>
+              <time dateTime={article.published_at}>
+                {relativeTime(article.published_at ?? null)}
+              </time>
             </>
           )}
         </p>
-
       </div>
     </article>
   )
@@ -95,13 +109,11 @@ export function TrendingSection({ articles }: Props) {
 
   return (
     <section aria-label="Trending now">
-
-      {/* Header: text above a full-width horizontal line */}
       <div className="mb-5">
-        <h2 className="text-xs font-black uppercase tracking-widest text-brand-primary mb-2">
+        <h2 className="mb-2 text-xs font-black uppercase tracking-widest text-brand-primary">
           Trending Now
         </h2>
-        <div className="border-b-2 border-accent-amber w-full" />
+        <div className="w-full border-b-2 border-accent-amber" />
       </div>
 
       <div className="space-y-3">
@@ -109,7 +121,6 @@ export function TrendingSection({ articles }: Props) {
           <TrendCard key={article.id} article={article} rank={i + 1} />
         ))}
       </div>
-
     </section>
   )
 }

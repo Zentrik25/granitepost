@@ -2,21 +2,29 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 import { getSecurityHeaders } from '@/lib/security/headers'
 
-// Apply security headers to any NextResponse
-function applySecurityHeaders(res: NextResponse): NextResponse {
-  for (const [key, value] of Object.entries(getSecurityHeaders())) {
-    res.headers.set(key, value)
+function applySecurityHeaders(response: NextResponse) {
+  const headers = getSecurityHeaders()
+
+  for (const [key, value] of Object.entries(headers)) {
+    response.headers.set(key, value)
   }
-  return res
+
+  return response
+}
+
+function copyCookies(from: NextResponse, to: NextResponse) {
+  for (const cookie of from.cookies.getAll()) {
+    to.cookies.set(cookie)
+  }
 }
 
 function redirectWithCookies(
   request: NextRequest,
   supabaseResponse: NextResponse,
-  path: string,
+  pathname: string,
   searchParams?: Record<string, string>
 ) {
-  const url = new URL(path, request.url)
+  const url = new URL(pathname, request.url)
 
   if (searchParams) {
     for (const [key, value] of Object.entries(searchParams)) {
@@ -25,10 +33,7 @@ function redirectWithCookies(
   }
 
   const response = NextResponse.redirect(url)
-
-  for (const cookie of supabaseResponse.cookies.getAll()) {
-    response.cookies.set(cookie)
-  }
+  copyCookies(supabaseResponse, response)
 
   return applySecurityHeaders(response)
 }
@@ -36,15 +41,18 @@ function redirectWithCookies(
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
-  // ── Admin routes: session refresh + auth gate ────────────────────────────
   if (pathname.startsWith('/admin')) {
     const { supabaseResponse, user } = await updateSession(request)
 
-    if (pathname === '/admin/login') {
-      if (user) {
-        return redirectWithCookies(request, supabaseResponse, '/admin')
+    const isLoginPage = pathname === '/admin/login'
+    const isAccessDeniedPage = pathname === '/admin/access-denied'
+
+    if (isLoginPage) {
+      if (!user) {
+        return applySecurityHeaders(supabaseResponse)
       }
-      return applySecurityHeaders(supabaseResponse)
+
+      return redirectWithCookies(request, supabaseResponse, '/admin')
     }
 
     if (!user) {
@@ -53,20 +61,18 @@ export async function middleware(request: NextRequest) {
       })
     }
 
+    if (isAccessDeniedPage) {
+      return applySecurityHeaders(supabaseResponse)
+    }
+
     return applySecurityHeaders(supabaseResponse)
   }
 
-  // ── All other routes: security headers only ──────────────────────────────
   return applySecurityHeaders(NextResponse.next())
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except Next.js internals and static files.
-     * This ensures security headers are applied to every HTML, API, and
-     * dynamic response while skipping assets that don't need them.
-     */
-    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt)$).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
   ],
 }

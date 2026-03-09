@@ -1,8 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Creates a Supabase client for use inside Next.js middleware.
-// Refreshes the session cookie on admin requests only.
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -14,22 +12,16 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(
-          cookiesToSet: {
-            name: string
-            value: string
-            options?: Record<string, unknown>
-          }[]
-        ) {
-          cookiesToSet.forEach(({ name, value }) => {
+        setAll(cookiesToSet) {
+          for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value)
-          })
+          }
 
           supabaseResponse = NextResponse.next({ request })
 
-          cookiesToSet.forEach(({ name, value, options }) => {
-            supabaseResponse.cookies.set(name, value, options as never)
-          })
+          for (const { name, value, options } of cookiesToSet) {
+            supabaseResponse.cookies.set(name, value, options)
+          }
         },
       },
     }
@@ -37,20 +29,19 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
-    error: authError,
+    error,
   } = await supabase.auth.getUser()
 
-  // Invalid or stale session, clear Supabase cookies
-  if (authError && authError.status === 400) {
-    const clearResponse = NextResponse.next({ request })
+  if (error && error.status === 400) {
+    const cleared = NextResponse.next({ request })
 
-    request.cookies.getAll().forEach(({ name }) => {
-      if (name.startsWith('sb-')) {
-        clearResponse.cookies.delete(name)
+    for (const cookie of request.cookies.getAll()) {
+      if (cookie.name.startsWith('sb-')) {
+        cleared.cookies.delete(cookie.name)
       }
-    })
+    }
 
-    return { supabaseResponse: clearResponse, user: null }
+    return { supabaseResponse: cleared, user: null }
   }
 
   return { supabaseResponse, user }

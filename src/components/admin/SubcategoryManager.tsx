@@ -3,15 +3,20 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Category } from '@/types'
+import type { Database } from '@/types/database'
+
+type Category = Database['public']['Tables']['categories']['Row']
 
 interface SubcategoryManagerProps {
-  /** All categories (parents and subcategories) */
   categories: Category[]
 }
 
 function slugify(text: string) {
-  return text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
 }
 
 const INPUT =
@@ -45,7 +50,7 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
     setParentId(cat.parent_id ?? '')
   }
 
-  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
@@ -66,37 +71,49 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
         ? await supabase.from('categories').update(payload).eq('id', editing.id)
         : await supabase.from('categories').insert(payload)
 
-      if (err) { setError(err.message); return }
+      if (err) {
+        setError(err.message)
+        return
+      }
+
       resetForm()
       router.refresh()
     })
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this subcategory? Articles assigned to it will lose this subcategory.')) return
+    if (!confirm('Delete this subcategory? Articles assigned to it will lose this subcategory.')) {
+      return
+    }
+
     const supabase = createClient()
-    await supabase.from('categories').delete().eq('id', id)
+    const { error: err } = await supabase.from('categories').delete().eq('id', id)
+
+    if (err) {
+      setError(err.message)
+      return
+    }
+
     router.refresh()
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Form */}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="lg:col-span-1">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-          <h2 className="text-sm font-bold text-gray-800 mb-4">
+        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-bold text-gray-800">
             {editing ? 'Edit Subcategory' : 'New Subcategory'}
           </h2>
 
           {error && (
-            <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3">
+            <p className="mb-3 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
               {error}
             </p>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
                 Parent Category *
               </label>
               <select
@@ -107,13 +124,17 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
               >
                 <option value="">— Select parent —</option>
                 {topLevel.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Name *</label>
+              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                Name *
+              </label>
               <input
                 type="text"
                 required
@@ -129,7 +150,9 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Slug *</label>
+              <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                Slug *
+              </label>
               <input
                 type="text"
                 required
@@ -145,15 +168,16 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-2.5 bg-granite-primary text-white text-sm font-semibold rounded-lg hover:brightness-110 disabled:opacity-50 transition-all"
+                className="flex-1 rounded-lg bg-granite-primary py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
               >
                 {isPending ? 'Saving…' : editing ? 'Save Changes' : 'Add Subcategory'}
               </button>
+
               {editing && (
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-colors hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -163,52 +187,58 @@ export function SubcategoryManager({ categories }: SubcategoryManagerProps) {
         </div>
       </div>
 
-      {/* List */}
       <div className="lg:col-span-2">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-gray-100">
+        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div className="border-b border-gray-100 px-5 py-3.5">
             <h2 className="text-sm font-bold text-gray-800">
-              Subcategories <span className="text-gray-400 font-normal">({subcategories.length})</span>
+              Subcategories{' '}
+              <span className="font-normal text-gray-400">({subcategories.length})</span>
             </h2>
           </div>
 
           {subcategories.length === 0 ? (
-            <p className="px-5 py-10 text-sm text-gray-400 text-center">
+            <p className="px-5 py-10 text-center text-sm text-gray-400">
               No subcategories yet. Add one using the form.
             </p>
           ) : (
             <ul className="divide-y divide-gray-50">
-              {/* Group by parent */}
               {topLevel.map((parent) => {
                 const subs = subcategories.filter((s) => s.parent_id === parent.id)
                 if (subs.length === 0) return null
+
                 return (
                   <li key={parent.id}>
-                    <div className="px-5 py-2 bg-gray-50">
+                    <div className="bg-gray-50 px-5 py-2">
                       <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
                         {parent.name}
                       </p>
                     </div>
+
                     <ul className="divide-y divide-gray-50">
                       {subs.map((sub) => (
                         <li
                           key={sub.id}
-                          className="flex items-center justify-between px-5 py-3 hover:bg-blue-50/30 transition-colors"
+                          className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-blue-50/30"
                         >
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-gray-800">{sub.name}</p>
-                            <p className="text-xs text-gray-400 font-mono">/category/{sub.slug}</p>
+                            <p className="font-mono text-xs text-gray-400">
+                              /category/{sub.slug}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+
+                          <div className="ml-4 flex flex-shrink-0 items-center gap-2">
                             <button
+                              type="button"
                               onClick={() => startEdit(sub)}
-                              className="text-xs font-semibold text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                              className="rounded px-2 py-1 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-800"
                             >
                               Edit
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleDelete(sub.id)}
-                              className="text-xs font-semibold text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                              className="rounded px-2 py-1 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
                             >
                               Delete
                             </button>

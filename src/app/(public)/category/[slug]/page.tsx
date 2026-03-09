@@ -5,6 +5,7 @@ import { Pagination } from '@/components/ui/Pagination'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { getCategoryBySlug } from '@/lib/queries/categories'
 import { getArticlesByCategory } from '@/lib/queries/articles'
+import type { ArticleWithRelations } from '@/types'
 import { buildBreadcrumbSchema, buildWebPageSchema, toJsonLd } from '@/lib/seo/schema'
 
 export const revalidate = 120
@@ -90,10 +91,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {result.data.map((article) => (
+            {(result.data as ArticleWithRelations[]).map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
+
           </div>
+
         )}
 
         <Pagination

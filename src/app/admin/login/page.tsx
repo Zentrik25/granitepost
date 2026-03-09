@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { LoginForm } from '@/components/admin/LoginForm'
 
 export const metadata: Metadata = {
@@ -10,10 +11,11 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12"
-      style={{ background: 'linear-gradient(165deg, #060f1e 0%, #0d1e50 50%, #142B6F 100%)' }}
+      style={{
+        background: 'linear-gradient(165deg, #060f1e 0%, #0d1e50 50%, #142B6F 100%)',
+      }}
     >
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div
@@ -27,10 +29,11 @@ export default function LoginPage() {
           <p className="text-slate-400 text-sm">Sign in to the admin portal</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h2 className="text-lg font-bold text-gray-800 mb-6">Welcome back</h2>
-          <LoginForm />
+          <Suspense fallback={<div className="h-[200px] animate-pulse bg-gray-100 rounded-lg" aria-label="Loading login form..."></div>}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         <p className="text-center text-slate-600 text-xs mt-6">

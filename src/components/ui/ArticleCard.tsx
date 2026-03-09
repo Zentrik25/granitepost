@@ -61,7 +61,7 @@ export function ArticleCard({
               <span className="text-gray-500 font-medium">By {article.author.full_name} · </span>
             )}
             <time dateTime={article.published_at ?? undefined}>
-              {relativeTime(article.published_at)}
+              {relativeTime(article.published_at ?? null)}
             </time>
           </p>
         </div>
@@ -114,7 +114,7 @@ export function ArticleCard({
               <span className="text-gray-300 font-medium">By {article.author.full_name} · </span>
             )}
             <time dateTime={article.published_at ?? undefined}>
-              {relativeTime(article.published_at)}
+              {relativeTime(article.published_at ?? null)}
             </time>
           </p>
         </div>
@@ -179,7 +179,7 @@ export function ArticleCard({
             <span className="font-medium text-gray-500">By {article.author.full_name} · </span>
           )}
           <time dateTime={article.published_at ?? undefined}>
-            {relativeTime(article.published_at)}
+            {relativeTime(article.published_at ?? null)}
           </time>
         </p>
       </div>

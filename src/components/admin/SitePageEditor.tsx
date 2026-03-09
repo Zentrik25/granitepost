@@ -1,17 +1,17 @@
 'use client'
 
 import { useActionState, useRef, useState } from 'react'
-import type { SitePage } from '@/types'
+import type { Database } from '@/types/database'
+
+type SitePage = Database['public']['Tables']['site_pages']['Row']
 
 interface SitePageEditorProps {
   page: SitePage
   saveAction: (
     prevState: { error: string | null; success: boolean },
-    formData: FormData,
+    formData: FormData
   ) => Promise<{ error: string | null; success: boolean }>
 }
-
-// ── Toolbar button ─────────────────────────────────────────────────────────────
 
 interface ToolbarButtonProps {
   label: string
@@ -25,20 +25,18 @@ function ToolbarButton({ label, title, onClick }: ToolbarButtonProps) {
       type="button"
       title={title}
       onClick={onClick}
-      className="px-2.5 py-1.5 text-xs font-semibold text-brand-secondary rounded hover:bg-brand-canvas hover:text-brand-primary border border-transparent hover:border-brand-border transition-all duration-100 whitespace-nowrap"
+      className="whitespace-nowrap rounded border border-transparent px-2.5 py-1.5 text-xs font-semibold text-brand-secondary transition-all duration-100 hover:border-brand-border hover:bg-brand-canvas hover:text-brand-primary"
     >
       {label}
     </button>
   )
 }
 
-// ── Tag insertion helpers ──────────────────────────────────────────────────────
-
 function wrapSelection(
   textarea: HTMLTextAreaElement,
   open: string,
   close: string,
-  onChange: (v: string) => void,
+  onChange: (v: string) => void
 ) {
   const start = textarea.selectionStart
   const end = textarea.selectionEnd
@@ -47,8 +45,9 @@ function wrapSelection(
   const after = textarea.value.substring(end)
   const replacement = `${open}${selected || 'text'}${close}`
   const next = before + replacement + after
+
   onChange(next)
-  // Restore selection inside the inserted tags
+
   requestAnimationFrame(() => {
     textarea.focus()
     const cursor = start + open.length + (selected || 'text').length
@@ -59,12 +58,15 @@ function wrapSelection(
 function insertAtCursor(
   textarea: HTMLTextAreaElement,
   html: string,
-  onChange: (v: string) => void,
+  onChange: (v: string) => void
 ) {
   const start = textarea.selectionStart
   const before = textarea.value.substring(0, start)
   const after = textarea.value.substring(start)
-  onChange(before + html + after)
+  const next = before + html + after
+
+  onChange(next)
+
   requestAnimationFrame(() => {
     textarea.focus()
     const cursor = start + html.length
@@ -72,12 +74,10 @@ function insertAtCursor(
   })
 }
 
-// ── Main editor ───────────────────────────────────────────────────────────────
-
 export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
   const [title, setTitle] = useState(page.title)
   const [metaDesc, setMetaDesc] = useState(page.meta_description ?? '')
-  const [html, setHtml] = useState(page.content_html)
+  const [html, setHtml] = useState(page.content_html ?? '')
   const [preview, setPreview] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -90,33 +90,82 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
     return textareaRef.current!
   }
 
-  // Toolbar actions
   const toolbar = [
-    { label: 'B',           title: 'Bold',        action: () => wrapSelection(getTextarea(), '<strong>', '</strong>', setHtml) },
-    { label: 'I',           title: 'Italic',       action: () => wrapSelection(getTextarea(), '<em>', '</em>', setHtml) },
-    { label: 'H2',          title: 'Heading 2',    action: () => wrapSelection(getTextarea(), '<h2>', '</h2>', setHtml) },
-    { label: 'H3',          title: 'Heading 3',    action: () => wrapSelection(getTextarea(), '<h3>', '</h3>', setHtml) },
-    { label: 'P',           title: 'Paragraph',    action: () => wrapSelection(getTextarea(), '<p>', '</p>', setHtml) },
-    { label: 'UL',          title: 'Bullet list',  action: () => wrapSelection(getTextarea(), '<ul>\n<li>', '</li>\n</ul>', setHtml) },
-    { label: 'OL',          title: 'Numbered list',action: () => wrapSelection(getTextarea(), '<ol>\n<li>', '</li>\n</ol>', setHtml) },
-    { label: 'LI',          title: 'List item',    action: () => wrapSelection(getTextarea(), '<li>', '</li>', setHtml) },
-    { label: '"',           title: 'Blockquote',   action: () => wrapSelection(getTextarea(), '<blockquote>', '</blockquote>', setHtml) },
-    { label: 'Link',        title: 'Hyperlink',    action: () => {
-      const url = window.prompt('Enter URL:', 'https://')
-      if (url) wrapSelection(getTextarea(), `<a href="${url}">`, '</a>', setHtml)
-    }},
-    { label: '—',           title: 'Horizontal rule', action: () => insertAtCursor(getTextarea(), '\n<hr />\n', setHtml) },
+    {
+      label: 'B',
+      title: 'Bold',
+      action: () => wrapSelection(getTextarea(), '<strong>', '</strong>', setHtml),
+    },
+    {
+      label: 'I',
+      title: 'Italic',
+      action: () => wrapSelection(getTextarea(), '<em>', '</em>', setHtml),
+    },
+    {
+      label: 'H2',
+      title: 'Heading 2',
+      action: () => wrapSelection(getTextarea(), '<h2>', '</h2>', setHtml),
+    },
+    {
+      label: 'H3',
+      title: 'Heading 3',
+      action: () => wrapSelection(getTextarea(), '<h3>', '</h3>', setHtml),
+    },
+    {
+      label: 'P',
+      title: 'Paragraph',
+      action: () => wrapSelection(getTextarea(), '<p>', '</p>', setHtml),
+    },
+    {
+      label: 'UL',
+      title: 'Bullet list',
+      action: () =>
+        wrapSelection(getTextarea(), '<ul>\n<li>', '</li>\n</ul>', setHtml),
+    },
+    {
+      label: 'OL',
+      title: 'Numbered list',
+      action: () =>
+        wrapSelection(getTextarea(), '<ol>\n<li>', '</li>\n</ol>', setHtml),
+    },
+    {
+      label: 'LI',
+      title: 'List item',
+      action: () => wrapSelection(getTextarea(), '<li>', '</li>', setHtml),
+    },
+    {
+      label: '"',
+      title: 'Blockquote',
+      action: () =>
+        wrapSelection(getTextarea(), '<blockquote>', '</blockquote>', setHtml),
+    },
+    {
+      label: 'Link',
+      title: 'Hyperlink',
+      action: () => {
+        const url = window.prompt('Enter URL:', 'https://')
+        if (url) {
+          wrapSelection(getTextarea(), `<a href="${url}">`, '</a>', setHtml)
+        }
+      },
+    },
+    {
+      label: '—',
+      title: 'Horizontal rule',
+      action: () => insertAtCursor(getTextarea(), '\n<hr />\n', setHtml),
+    },
   ]
 
   return (
     <form action={formAction} className="space-y-5">
-      {/* Hidden fields */}
       <input type="hidden" name="content_html" value={html} />
 
-      {/* Page metadata card */}
-      <div className="bg-brand-surface rounded-xl border border-brand-border shadow-sm p-6 space-y-4">
+      <div className="space-y-4 rounded-xl border border-brand-border bg-brand-surface p-6 shadow-sm">
         <div>
-          <label htmlFor="title" className="block text-xs font-semibold text-brand-secondary uppercase tracking-wider mb-1.5">
+          <label
+            htmlFor="title"
+            className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-brand-secondary"
+          >
             Page Title
           </label>
           <input
@@ -126,15 +175,20 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full h-11 px-4 text-sm font-semibold rounded-lg border border-brand-border bg-brand-canvas focus:outline-none focus:ring-2 focus:ring-brand-ink/20 focus:border-brand-ink text-brand-primary transition-colors"
+            className="h-11 w-full rounded-lg border border-brand-border bg-brand-canvas px-4 text-sm font-semibold text-brand-primary transition-colors focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20"
             placeholder="Page title"
           />
         </div>
 
         <div>
-          <label htmlFor="meta_description" className="block text-xs font-semibold text-brand-secondary uppercase tracking-wider mb-1.5">
+          <label
+            htmlFor="meta_description"
+            className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-brand-secondary"
+          >
             Meta Description
-            <span className="ml-2 normal-case font-normal text-brand-muted">(used for SEO and search results)</span>
+            <span className="ml-2 normal-case font-normal text-brand-muted">
+              (used for SEO and search results)
+            </span>
           </label>
           <input
             id="meta_description"
@@ -143,20 +197,21 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
             value={metaDesc}
             onChange={(e) => setMetaDesc(e.target.value)}
             maxLength={160}
-            className="w-full h-11 px-4 text-sm rounded-lg border border-brand-border bg-brand-canvas focus:outline-none focus:ring-2 focus:ring-brand-ink/20 focus:border-brand-ink text-brand-primary transition-colors"
+            className="h-11 w-full rounded-lg border border-brand-border bg-brand-canvas px-4 text-sm text-brand-primary transition-colors focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/20"
             placeholder="Brief description of this page (max 160 characters)"
           />
-          <p className="text-[10px] text-brand-muted mt-1 text-right">{metaDesc.length}/160</p>
+          <p className="mt-1 text-right text-[10px] text-brand-muted">
+            {metaDesc.length}/160
+          </p>
         </div>
       </div>
 
-      {/* Content editor card */}
-      <div className="bg-brand-surface rounded-xl border border-brand-border shadow-sm overflow-hidden">
-        {/* Editor header */}
-        <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-brand-border bg-brand-canvas/50">
-          <span className="text-xs font-bold text-brand-secondary uppercase tracking-wider">
+      <div className="overflow-hidden rounded-xl border border-brand-border bg-brand-surface shadow-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-brand-border bg-brand-canvas/50 px-5 py-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-secondary">
             Page Content
           </span>
+
           <button
             type="button"
             onClick={() => setPreview((p) => !p)}
@@ -167,16 +222,13 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
         </div>
 
         {preview ? (
-          /* ── Preview panel ── */
           <div
-            className="prose prose-sm max-w-none p-6 min-h-[400px] text-brand-primary"
+            className="prose prose-sm min-h-[400px] max-w-none p-6 text-brand-primary"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         ) : (
-          /* ── HTML editor ── */
           <>
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-brand-border bg-brand-canvas/30">
+            <div className="flex flex-wrap gap-1 border-b border-brand-border bg-brand-canvas/30 px-3 py-2">
               {toolbar.map((btn) => (
                 <ToolbarButton
                   key={btn.label}
@@ -187,14 +239,13 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
               ))}
             </div>
 
-            {/* Textarea */}
             <textarea
               ref={textareaRef}
               value={html}
               onChange={(e) => setHtml(e.target.value)}
               rows={22}
               spellCheck={false}
-              className="w-full px-5 py-4 text-[13px] font-mono leading-relaxed text-brand-primary bg-transparent resize-none focus:outline-none"
+              className="w-full resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-relaxed text-brand-primary focus:outline-none"
               placeholder="<p>Start writing HTML content here…</p>"
               aria-label="Page HTML content"
             />
@@ -202,21 +253,27 @@ export function SitePageEditor({ page, saveAction }: SitePageEditorProps) {
         )}
       </div>
 
-      {/* Status + save */}
       <div className="flex items-center justify-between gap-4">
         <div className="text-sm">
           {formState.success && !isPending && (
-            <p className="text-emerald-600 font-medium">Changes saved successfully.</p>
+            <p className="font-medium text-emerald-600">
+              Changes saved successfully.
+            </p>
           )}
+
           {formState.error && !isPending && (
-            <p className="text-red-500 font-medium">{formState.error}</p>
+            <p className="font-medium text-red-500">{formState.error}</p>
           )}
         </div>
+
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white rounded-lg disabled:opacity-60 disabled:cursor-not-allowed hover:brightness-110 active:brightness-95 transition-all duration-150"
-          style={{ background: 'linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%)' }}
+          className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          style={{
+            background:
+              'linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%)',
+          }}
         >
           {isPending ? 'Saving…' : 'Save Changes'}
         </button>

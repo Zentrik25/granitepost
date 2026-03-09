@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ArticleWithRelations } from '@/types'
 import { relativeTime } from '@/lib/utils/slug'
+import type { ArticleWithRelations } from '@/types'
 
 interface LatestFeedSectionProps {
   articles: ArticleWithRelations[]
@@ -9,8 +9,11 @@ interface LatestFeedSectionProps {
 
 function LiveBadge() {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide text-white bg-red-600">
-      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" aria-hidden="true" />
+    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
+      <span
+        className="h-1.5 w-1.5 animate-pulse rounded-full bg-white"
+        aria-hidden="true"
+      />
       Live
     </span>
   )
@@ -21,20 +24,19 @@ export function LatestFeedSection({ articles }: LatestFeedSectionProps) {
 
   return (
     <section aria-label="Latest updates">
-      <div className="flex items-center gap-3 mb-4 pb-2 border-b-2 border-gray-900">
+      <div className="mb-4 flex items-center gap-3 border-b-2 border-gray-900 pb-2">
         <h2 className="text-xs font-black uppercase tracking-widest text-gray-900">
           Latest Updates
         </h2>
-        <div className="flex-1 h-px bg-gray-200" />
+        <div className="h-px flex-1 bg-gray-200" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {articles.map((article) => (
           <article
             key={article.id}
-            className="relative group flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-1 active:scale-[0.98] transition-all duration-200 overflow-hidden"
+            className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
           >
-            {/* Cover link */}
             <Link
               href={`/article/${article.slug}`}
               className="absolute inset-0 z-0"
@@ -42,46 +44,48 @@ export function LatestFeedSection({ articles }: LatestFeedSectionProps) {
               tabIndex={-1}
             />
 
-            <div className="relative aspect-[16/9] w-full overflow-hidden flex-shrink-0">
+            <div className="relative aspect-[16/9] w-full flex-shrink-0 overflow-hidden">
               {article.hero_image_url ? (
                 <Image
                   src={article.hero_image_url}
                   alt={article.hero_image_alt ?? article.title}
                   fill
-                  className="object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-out"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
               )}
 
-              {'is_live' in article && article.is_live && (
-                <div className="absolute top-2 left-2 z-10">
+              {article.is_live && (
+                <div className="absolute left-2 top-2 z-10">
                   <LiveBadge />
                 </div>
               )}
             </div>
 
-            <div className="relative z-10 p-3.5 flex flex-col gap-1.5 flex-1">
+            <div className="relative z-10 flex flex-1 flex-col gap-1.5 p-3.5">
               {article.category && (
                 <Link
                   href={`/category/${article.category.slug}`}
-                  className="text-[10px] font-bold uppercase tracking-wide text-amber-600 hover:text-amber-500 transition-colors self-start"
+                  className="self-start text-[10px] font-bold uppercase tracking-wide text-amber-600 transition-colors hover:text-amber-500"
                 >
                   {article.category.name}
                 </Link>
               )}
-              <h3 className="text-[13px] font-bold leading-snug line-clamp-3">
+
+              <h3 className="line-clamp-3 text-[13px] font-bold leading-snug">
                 <Link
                   href={`/article/${article.slug}`}
-                  className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
+                  className="text-gray-900 transition-colors duration-150 hover:text-amber-800"
                 >
                   {article.title}
                 </Link>
               </h3>
-              <p className="text-[11px] text-gray-400 mt-auto pt-2 border-t border-gray-100">
+
+              <p className="mt-auto border-t border-gray-100 pt-2 text-[11px] text-gray-400">
                 <time dateTime={article.updated_at ?? article.published_at ?? undefined}>
-                  {relativeTime(article.updated_at ?? article.published_at)}
+                  {relativeTime((article.updated_at ?? article.published_at) ?? null)}
                 </time>
               </p>
             </div>

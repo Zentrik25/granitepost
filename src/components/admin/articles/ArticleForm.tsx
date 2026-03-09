@@ -1,12 +1,21 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import type { Article } from '@/types'
+import type { Database } from '@/types/database'
 import type { ActionResult } from '@/lib/admin/articles/validation'
 import type { CategoryOption, TagOption } from '@/lib/admin/articles/queries'
-import type { createArticleAction } from '@/app/(admin)/admin/articles/actions'
 
-type SaveAction = typeof createArticleAction
+type ArticleRow = Database['public']['Tables']['articles']['Row']
+
+type Article = ArticleRow & {
+  is_featured?: boolean | null
+  top_story_rank?: number | null
+}
+
+type SaveAction = (
+  state: ActionResult,
+  formData: FormData
+) => Promise<ActionResult>
 
 interface Props {
   saveAction: SaveAction
@@ -31,7 +40,7 @@ function slugify(text: string): string {
 
 function FieldError({ errors }: { errors?: string[] }) {
   if (!errors?.length) return null
-  return <p className="text-xs text-red-600 mt-1">{errors[0]}</p>
+  return <p className="mt-1 text-xs text-red-600">{errors[0]}</p>
 }
 
 export function ArticleForm({
@@ -51,6 +60,8 @@ export function ArticleForm({
   const [isTopStory, setIsTopStory] = useState(article?.top_story_rank != null)
   const [pickedTags, setPickedTags] = useState<Set<string>>(new Set(selectedTagIds))
 
+  const fe = state.fieldErrors as Record<string, string[] | undefined> | undefined
+
   function handleTitleChange(val: string) {
     setTitle(val)
     if (mode === 'create') setSlug(slugify(val))
@@ -59,31 +70,39 @@ export function ArticleForm({
   function toggleTag(id: string) {
     setPickedTags((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
 
-  const fe = state.fieldErrors
-
   return (
-    <form action={formAction} className="space-y-6 max-w-4xl" noValidate>
+    <form action={formAction} className="max-w-4xl space-y-6" noValidate>
       {!isPending && state.error && (
-        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+        <div
+          role="alert"
+          className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {state.error}
         </div>
       )}
+
       {!isPending && state.success && (
-        <div role="status" className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3">
+        <div
+          role="status"
+          className="border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+        >
           Saved successfully.
         </div>
       )}
 
-      <section className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">Content</h2>
+      <section className="space-y-4 border border-brand-border bg-white p-6">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">
+          Content
+        </h2>
 
         <div>
-          <label htmlFor="af-title" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-title" className="mb-1 block text-xs font-semibold">
             Title <span className="text-brand-red">*</span>
           </label>
           <input
@@ -100,7 +119,7 @@ export function ArticleForm({
         </div>
 
         <div>
-          <label htmlFor="af-slug" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-slug" className="mb-1 block text-xs font-semibold">
             Slug <span className="text-brand-red">*</span>
           </label>
           <input
@@ -117,20 +136,22 @@ export function ArticleForm({
         </div>
 
         <div>
-          <label htmlFor="af-excerpt" className="block text-xs font-semibold mb-1">Excerpt</label>
+          <label htmlFor="af-excerpt" className="mb-1 block text-xs font-semibold">
+            Excerpt
+          </label>
           <textarea
             id="af-excerpt"
             name="excerpt"
             maxLength={1000}
             rows={3}
             defaultValue={article?.excerpt ?? ''}
-            className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red resize-y"
+            className="w-full resize-y border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
           />
           <FieldError errors={fe?.excerpt} />
         </div>
 
         <div>
-          <label htmlFor="af-body" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-body" className="mb-1 block text-xs font-semibold">
             Body <span className="text-brand-red">*</span>
           </label>
           <textarea
@@ -139,7 +160,7 @@ export function ArticleForm({
             rows={28}
             defaultValue={article?.body_html ?? ''}
             placeholder="Write the article here. Separate paragraphs with a blank line."
-            className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red resize-y"
+            className="w-full resize-y border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
           />
           <p className="mt-1 text-xs text-brand-muted">
             Plain text is allowed. Paragraphs will be formatted automatically when saved.
@@ -148,12 +169,16 @@ export function ArticleForm({
         </div>
       </section>
 
-      <section className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">Publish</h2>
+      <section className="space-y-4 border border-brand-border bg-white p-6">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">
+          Publish
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="af-status" className="block text-xs font-semibold mb-1">Status</label>
+            <label htmlFor="af-status" className="mb-1 block text-xs font-semibold">
+              Status
+            </label>
             <select
               id="af-status"
               name="status"
@@ -161,14 +186,18 @@ export function ArticleForm({
               className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
             >
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
             <FieldError errors={fe?.status} />
           </div>
 
           <div>
-            <label htmlFor="af-category" className="block text-xs font-semibold mb-1">Category</label>
+            <label htmlFor="af-category" className="mb-1 block text-xs font-semibold">
+              Category
+            </label>
             <select
               id="af-category"
               name="category_id"
@@ -177,7 +206,9 @@ export function ArticleForm({
             >
               <option value="">— No category —</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
             <FieldError errors={fe?.category_id} />
@@ -185,9 +216,11 @@ export function ArticleForm({
         </div>
 
         <div>
-          <label htmlFor="af-rank" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-rank" className="mb-1 block text-xs font-semibold">
             Featured rank{' '}
-            <span className="font-normal text-brand-muted">(1 = hero; blank = not featured)</span>
+            <span className="font-normal text-brand-muted">
+              (1 = hero; blank = not featured)
+            </span>
           </label>
           <input
             id="af-rank"
@@ -202,30 +235,38 @@ export function ArticleForm({
         </div>
 
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer select-none font-semibold">
+          <label className="flex cursor-pointer select-none items-center gap-2 text-sm font-semibold">
             <input
               type="checkbox"
               name="is_top_story"
               checked={isTopStory}
               onChange={(e) => setIsTopStory(e.target.checked)}
-              className="w-4 h-4 accent-brand-red"
+              className="h-4 w-4 accent-brand-red"
             />
             Pin as Top Story
           </label>
+
           {isTopStory && (
             <div>
-              <label htmlFor="af-top-story-rank" className="block text-xs font-semibold mb-1">
+              <label
+                htmlFor="af-top-story-rank"
+                className="mb-1 block text-xs font-semibold"
+              >
                 Rank slot{' '}
-                <span className="font-normal text-brand-muted">(1 = highest priority, 6 = lowest)</span>
+                <span className="font-normal text-brand-muted">
+                  (1 = highest priority, 6 = lowest)
+                </span>
               </label>
               <select
                 id="af-top-story-rank"
                 name="top_story_rank"
                 defaultValue={article?.top_story_rank ?? 1}
-                className="w-32 border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red bg-white"
+                className="w-32 border border-brand-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
               >
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <option key={n} value={n}>Slot {n}</option>
+                  <option key={n} value={n}>
+                    Slot {n}
+                  </option>
                 ))}
               </select>
               <FieldError errors={fe?.top_story_rank} />
@@ -233,32 +274,32 @@ export function ArticleForm({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-6 items-start">
-          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+        <div className="flex flex-wrap items-start gap-6">
+          <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
             <input
               type="checkbox"
               name="is_featured"
               checked={isFeatured}
               onChange={(e) => setIsFeatured(e.target.checked)}
-              className="w-4 h-4 accent-brand-red"
+              className="h-4 w-4 accent-brand-red"
             />
             Featured (hero carousel)
           </label>
 
-          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+          <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
             <input
               type="checkbox"
               name="is_breaking"
               checked={isBreaking}
               onChange={(e) => setIsBreaking(e.target.checked)}
-              className="w-4 h-4 accent-brand-red"
+              className="h-4 w-4 accent-brand-red"
             />
             Breaking news
           </label>
 
           {isBreaking && (
             <div>
-              <label htmlFor="af-expires" className="block text-xs font-semibold mb-1">
+              <label htmlFor="af-expires" className="mb-1 block text-xs font-semibold">
                 Breaking expires at <span className="text-brand-red">*</span>
               </label>
               <input
@@ -278,20 +319,26 @@ export function ArticleForm({
         </div>
       </section>
 
-      <section className="bg-white border border-brand-border p-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted mb-3">Tags</h2>
+      <section className="border border-brand-border bg-white p-6">
+        <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-brand-muted">
+          Tags
+        </h2>
+
         {tags.length === 0 ? (
-          <p className="text-xs text-brand-muted">No tags yet — create them in the Tags section.</p>
+          <p className="text-xs text-brand-muted">
+            No tags yet — create them in the Tags section.
+          </p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => {
               const picked = pickedTags.has(tag.id)
+
               return (
                 <label
                   key={tag.id}
-                  className={`text-xs px-3 py-1 border cursor-pointer transition-colors ${
+                  className={`cursor-pointer border px-3 py-1 text-xs transition-colors ${
                     picked
-                      ? 'bg-brand-red text-white border-brand-red'
+                      ? 'border-brand-red bg-brand-red text-white'
                       : 'border-brand-border hover:border-brand-dark'
                   }`}
                 >
@@ -311,34 +358,45 @@ export function ArticleForm({
         )}
       </section>
 
-      <section className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">Hero Image</h2>
+      <section className="space-y-4 border border-brand-border bg-white p-6">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">
+          Hero Image
+        </h2>
 
         {[
           { id: 'af-hero-url', name: 'hero_image_url', label: 'Image URL', type: 'url' },
           { id: 'af-hero-alt', name: 'hero_image_alt', label: 'Alt text', type: 'text' },
           { id: 'af-hero-cap', name: 'hero_image_caption', label: 'Caption', type: 'text' },
-          { id: 'af-hero-cred', name: 'hero_image_credit', label: 'Credit (photographer / agency)', type: 'text' },
+          {
+            id: 'af-hero-cred',
+            name: 'hero_image_credit',
+            label: 'Credit (photographer / agency)',
+            type: 'text',
+          },
         ].map(({ id, name, label, type }) => (
           <div key={name}>
-            <label htmlFor={id} className="block text-xs font-semibold mb-1">{label}</label>
+            <label htmlFor={id} className="mb-1 block text-xs font-semibold">
+              {label}
+            </label>
             <input
               id={id}
               name={name}
               type={type}
-              defaultValue={(article as Record<string, unknown>)?.[name] as string ?? ''}
+              defaultValue={String((article as Record<string, unknown> | undefined)?.[name] ?? '')}
               className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
             />
-            <FieldError errors={(fe as Record<string, string[]> | undefined)?.[name]} />
+            <FieldError errors={fe?.[name]} />
           </div>
         ))}
       </section>
 
-      <section className="bg-white border border-brand-border p-6 space-y-4">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">SEO / Open Graph</h2>
+      <section className="space-y-4 border border-brand-border bg-white p-6">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-brand-muted">
+          SEO / Open Graph
+        </h2>
 
         <div>
-          <label htmlFor="af-og-title" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-og-title" className="mb-1 block text-xs font-semibold">
             OG Title <span className="font-normal text-brand-muted">(blank = article title)</span>
           </label>
           <input
@@ -353,7 +411,7 @@ export function ArticleForm({
         </div>
 
         <div>
-          <label htmlFor="af-og-desc" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-og-desc" className="mb-1 block text-xs font-semibold">
             OG Description <span className="font-normal text-brand-muted">(blank = excerpt)</span>
           </label>
           <textarea
@@ -362,13 +420,13 @@ export function ArticleForm({
             rows={3}
             maxLength={1000}
             defaultValue={article?.og_description ?? ''}
-            className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red resize-y"
+            className="w-full resize-y border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
           />
           <FieldError errors={fe?.og_description} />
         </div>
 
         <div>
-          <label htmlFor="af-og-img" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-og-img" className="mb-1 block text-xs font-semibold">
             OG Image URL <span className="font-normal text-brand-muted">(≥1200 px wide, 16:9)</span>
           </label>
           <input
@@ -382,7 +440,7 @@ export function ArticleForm({
         </div>
 
         <div>
-          <label htmlFor="af-canonical" className="block text-xs font-semibold mb-1">
+          <label htmlFor="af-canonical" className="mb-1 block text-xs font-semibold">
             Canonical URL <span className="font-normal text-brand-muted">(blank = default)</span>
           </label>
           <input
@@ -396,30 +454,28 @@ export function ArticleForm({
         </div>
       </section>
 
-      <div className="flex flex-wrap gap-3 sticky bottom-0 bg-gray-50 py-4 border-t border-brand-border">
+      <div className="sticky bottom-0 flex flex-wrap gap-3 border-t border-brand-border bg-gray-50 py-4">
         <button
           type="submit"
           disabled={isPending}
-          className="px-6 py-2.5 bg-brand-red text-white font-bold text-sm hover:bg-red-700 disabled:opacity-60 transition-colors"
+          className="bg-brand-red px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
         >
-          {isPending
-            ? 'Saving…'
-            : mode === 'create'
-              ? 'Create Article'
-              : 'Save Changes'}
+          {isPending ? 'Saving…' : mode === 'create' ? 'Create Article' : 'Save Changes'}
         </button>
+
         <a
           href="/admin/articles"
-          className="px-6 py-2.5 border border-brand-border text-sm font-semibold hover:bg-brand-gray transition-colors"
+          className="border border-brand-border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-brand-gray"
         >
           Cancel
         </a>
+
         {mode === 'edit' && article?.status === 'PUBLISHED' && (
           <a
             href={`/article/${article.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-2.5 border border-brand-border text-sm font-semibold hover:bg-brand-gray transition-colors ml-auto"
+            className="ml-auto border border-brand-border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-brand-gray"
           >
             View live &rarr;
           </a>
