@@ -28,6 +28,7 @@ export {
   searchArticles,
   getAllArticlesAdmin,
   getMostRead7d,
+  getTrendingArticles,
 } from '@/lib/queries/articles'
 
 export { getApprovedComments } from '@/lib/queries/comments'

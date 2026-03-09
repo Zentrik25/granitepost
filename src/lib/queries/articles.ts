@@ -89,6 +89,18 @@ export async function getBreakingNews(): Promise<ArticleWithRelations[]> {
   )
 }
 
+export async function getTrendingArticles(limit = 6): Promise<ArticleWithRelations[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('articles')
+    .select(ARTICLE_SELECT)
+    .eq('status', 'PUBLISHED')
+    .order('view_count', { ascending: false })
+    .limit(limit)
+
+  return (data ?? []).map((d) => normaliseArticle(d as unknown as Record<string, unknown>))
+}
+
 export async function getTopStories(limit = 6): Promise<ArticleWithRelations[]> {
   const supabase = await createClient()
   const { data } = await supabase
