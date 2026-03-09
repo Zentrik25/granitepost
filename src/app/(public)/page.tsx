@@ -6,6 +6,7 @@ import { TopStoriesSection } from '@/components/home/v2/TopStoriesSection'
 import { MostReadSidebar } from '@/components/home/v2/MostReadSidebar'
 import { EditorialSection } from '@/components/home/v2/EditorialSection'
 import { LatestFeedSection } from '@/components/home/v2/LatestFeedSection'
+import { LatestUpdatesSection } from '@/components/home/v2/LatestUpdatesSection'
 import { NewsletterSection } from '@/components/home/v2/NewsletterSection'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 
@@ -21,10 +22,6 @@ import {
 import { getSiteSettings } from '@/lib/settings/queries'
 
 export const revalidate = 300
-
-/* ───────────────────────────────────────── */
-/* Metadata                                  */
-/* ───────────────────────────────────────── */
 
 export async function generateMetadata(): Promise<Metadata> {
 
@@ -71,13 +68,7 @@ const jsonLd = (siteName: string, siteDescription: string) => ({
   ]
 })
 
-/* ───────────────────────────────────────── */
-/* Homepage                                  */
-/* ───────────────────────────────────────── */
-
 export default async function HomePage() {
-
-  /* ── Wave 1: Independent queries ───────────────── */
 
   const [
     breaking,
@@ -90,36 +81,75 @@ export default async function HomePage() {
     getBreakingNews(),
     getFeaturedArticles(4),
     getTopStories(18),
-    getMostReadArticles(5),
-    getCategoryBlocks(4, 5), // 1 lead + 4 stories
+    getMostReadArticles(6),
+    getCategoryBlocks(4, 5),
     getSiteSettings()
   ])
 
-  /* ── Prevent duplicates ───────────────────────── */
+  /* ───────────────────────────── */
+  /* GLOBAL EXCLUSION SET          */
+  /* ───────────────────────────── */
 
-  const excludedIds = new Set([
-    ...heroSlides.map(a => a.id),
-    ...topStories.map(a => a.id),
-    ...mostRead.map(a => a.article_id),
-    ...breaking.map(a => a.id)
-  ])
+  const usedIds = new Set<string>()
 
-  /* ── Latest News ─────────────────────────────── */
+  /* HERO */
+
+  heroSlides.forEach(a => usedIds.add(a.id))
+
+  /* TOP STORIES */
+
+  const filteredTopStories = topStories.filter(a => !usedIds.has(a.id)).slice(0,6)
+  filteredTopStories.forEach(a => usedIds.add(a.id))
+
+  /* CATEGORY BLOCKS */
+
+  const cleanedCategoryBlocks = categoryBlocks.map(block => {
+
+    const filtered = block.articles.filter(a => !usedIds.has(a.id)).slice(0,5)
+
+    filtered.forEach(a => usedIds.add(a.id))
+
+    return {
+      ...block,
+      articles: filtered
+    }
+
+  })
+
+  /* MOST READ */
+
+  mostRead.forEach(a => usedIds.add(a.article_id))
+
+  /* ───────────────────────────── */
+  /* LATEST UPDATES SECTION        */
+  /* ───────────────────────────── */
+
+  const latestUpdates = await getLatestFeed(
+    Array.from(usedIds),
+    7
+  )
+
+  latestUpdates.forEach(a => usedIds.add(a.id))
+
+  /* ───────────────────────────── */
+  /* LATEST NEWS FEED              */
+  /* ───────────────────────────── */
 
   const latestNews = await getLatestFeed(
-    Array.from(excludedIds),
+    Array.from(usedIds),
     12
   )
 
-  /* ── More Stories Feed ───────────────────────── */
+  latestNews.forEach(a => usedIds.add(a.id))
 
-  const moreExclude = [
-    ...Array.from(excludedIds),
-    ...latestNews.map(a => a.id),
-    ...categoryBlocks.flatMap(b => b.articles.map(a => a.id))
-  ]
+  /* ───────────────────────────── */
+  /* MORE STORIES                  */
+  /* ───────────────────────────── */
 
-  const moreStories = await getLatestFeed(moreExclude, 12)
+  const moreStories = await getLatestFeed(
+    Array.from(usedIds),
+    12
+  )
 
   const ld = jsonLd(settings.site_name, settings.site_description)
 
@@ -130,37 +160,27 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
 
-      {/* Breaking News */}
       <BreakingTicker articles={breaking} />
 
-      {/* Hero */}
       <HeroSection articles={heroSlides} />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-14">
 
-        {/* Top Stories */}
-        {topStories.length > 0 && (
-          <TopStoriesSection
-            articles={topStories.slice(0, 6)}
-          />
+        {filteredTopStories.length > 0 && (
+          <TopStoriesSection articles={filteredTopStories} />
         )}
 
-        {/* Editorial + Most Read */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
 
-          {/* Editorial Blocks */}
           <div className="lg:col-span-3 min-w-0">
-            <EditorialSection blocks={categoryBlocks} />
+            <EditorialSection blocks={cleanedCategoryBlocks} />
           </div>
 
-          {/* Sidebar */}
           <aside className="lg:col-span-1">
 
             <div className="lg:sticky lg:top-24 space-y-8">
 
-              {mostRead.length > 0 && (
-                <MostReadSidebar articles={mostRead} />
-              )}
+              <MostReadSidebar articles={mostRead} />
 
             </div>
 
@@ -168,16 +188,17 @@ export default async function HomePage() {
 
         </div>
 
-        {/* Newsletter */}
+        {/* Latest Updates — compact horizontal card feed */}
+        <LatestUpdatesSection articles={latestUpdates} />
+
         <NewsletterSection />
 
-        {/* Latest News */}
         {latestNews.length > 0 && (
           <LatestFeedSection articles={latestNews} />
         )}
 
-        {/* More Stories */}
         {moreStories.length > 0 && (
+
           <section aria-label="More stories">
 
             <div className="flex items-center gap-3 mb-5 pb-2 border-b-2 border-brand-primary">
@@ -193,15 +214,18 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
               {moreStories.map(article => (
+
                 <ArticleCard
                   key={article.id}
                   article={article}
                 />
+
               ))}
 
             </div>
 
           </section>
+
         )}
 
       </div>
