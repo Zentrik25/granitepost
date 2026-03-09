@@ -40,6 +40,8 @@ function parseFormData(formData: FormData): Record<string, unknown> {
   const featuredRaw = (formData.get('featured_rank') as string | null) ?? ''
   const isBreaking = formData.get('is_breaking') === 'on'
   const isFeatured = formData.get('is_featured') === 'on'
+  const isTopStory = formData.get('is_top_story') === 'on'
+  const topStoryRaw = (formData.get('top_story_rank') as string | null) ?? ''
 
   return {
     title: formData.get('title') ?? '',
@@ -59,6 +61,7 @@ function parseFormData(formData: FormData): Record<string, unknown> {
     is_breaking: isBreaking,
     breaking_expires_at: breakingRaw ? new Date(breakingRaw).toISOString() : '',
     featured_rank: featuredRaw ? Number(featuredRaw) : null,
+    top_story_rank: isTopStory && topStoryRaw ? Number(topStoryRaw) : null,
     tag_ids: tagIds,
     status: formData.get('status') ?? 'DRAFT',
   }
@@ -91,6 +94,7 @@ function buildDbPayload(input: ArticleFormInput) {
     is_breaking: input.is_breaking,
     breaking_expires_at: input.breaking_expires_at || null,
     featured_rank: input.featured_rank ?? null,
+    top_story_rank: input.top_story_rank ?? null,
     status: input.status,
   }
 }
@@ -133,6 +137,14 @@ export async function createArticleAction(
 
   if (existing) {
     return { success: false, fieldErrors: { slug: ['This slug is already in use.'] } }
+  }
+
+  // Clear rank from any other article that currently holds the same slot
+  if (parsed.data.top_story_rank != null) {
+    await supabase
+      .from('articles')
+      .update({ top_story_rank: null })
+      .eq('top_story_rank', parsed.data.top_story_rank)
   }
 
   const { data: article, error } = await supabase
@@ -222,6 +234,15 @@ export async function updateArticleAction(
     if (conflict) {
       return { success: false, fieldErrors: { slug: ['This slug is already in use.'] } }
     }
+  }
+
+  // Clear rank from any other article that currently holds the same slot
+  if (parsed.data.top_story_rank != null) {
+    await supabase
+      .from('articles')
+      .update({ top_story_rank: null })
+      .eq('top_story_rank', parsed.data.top_story_rank)
+      .neq('id', id)
   }
 
   const { error: updateErr } = await supabase

@@ -48,6 +48,7 @@ export function ArticleForm({
   const [slug, setSlug] = useState(article?.slug ?? '')
   const [isBreaking, setIsBreaking] = useState(article?.is_breaking ?? false)
   const [isFeatured, setIsFeatured] = useState(article?.is_featured ?? false)
+  const [isTopStory, setIsTopStory] = useState(article?.top_story_rank != null)
   const [pickedTags, setPickedTags] = useState<Set<string>>(new Set(selectedTagIds))
 
   function handleTitleChange(val: string) {
@@ -198,6 +199,38 @@ export function ArticleForm({
             className="w-32 border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
           />
           <FieldError errors={fe?.featured_rank} />
+        </div>
+
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none font-semibold">
+            <input
+              type="checkbox"
+              name="is_top_story"
+              checked={isTopStory}
+              onChange={(e) => setIsTopStory(e.target.checked)}
+              className="w-4 h-4 accent-brand-red"
+            />
+            Pin as Top Story
+          </label>
+          {isTopStory && (
+            <div>
+              <label htmlFor="af-top-story-rank" className="block text-xs font-semibold mb-1">
+                Rank slot{' '}
+                <span className="font-normal text-brand-muted">(1 = highest priority, 6 = lowest)</span>
+              </label>
+              <select
+                id="af-top-story-rank"
+                name="top_story_rank"
+                defaultValue={article?.top_story_rank ?? 1}
+                className="w-32 border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red bg-white"
+              >
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>Slot {n}</option>
+                ))}
+              </select>
+              <FieldError errors={fe?.top_story_rank} />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-6 items-start">

@@ -47,6 +47,13 @@ export const articleInputSchema = z
       .max(100, 'Must be 100 or less')
       .nullable()
       .optional(),
+    top_story_rank: z.coerce
+      .number()
+      .int('Must be a whole number')
+      .min(1, 'Must be at least 1')
+      .max(6, 'Must be 6 or less')
+      .nullable()
+      .optional(),
     tag_ids: z.array(z.string().uuid()).default([]),
     status: z.enum(['DRAFT', 'REVIEW', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
   })

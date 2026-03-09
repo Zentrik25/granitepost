@@ -6,7 +6,7 @@ export const ARTICLE_SELECT = `
   id, title, slug, excerpt, body_html, status,
   hero_image_url, hero_image_alt, hero_image_caption, hero_image_credit,
   og_title, og_description, og_image_url, canonical_url,
-  is_breaking, breaking_expires_at, featured_rank, is_featured, view_count,
+  is_breaking, breaking_expires_at, featured_rank, is_featured, top_story_rank, view_count,
   published_at, created_at, updated_at,
   category:categories(id, name, slug),
   author:profiles(id, full_name, avatar_url),
@@ -95,12 +95,11 @@ export async function getTopStories(limit = 6): Promise<ArticleWithRelations[]> 
     .from('articles')
     .select(ARTICLE_SELECT)
     .eq('status', 'PUBLISHED')
-    .order('published_at', { ascending: false })
+    .not('top_story_rank', 'is', null)
+    .order('top_story_rank', { ascending: true })
     .limit(limit)
 
-  return (data ?? []).map((d) =>
-    normaliseArticle(d as unknown as Record<string, unknown>)
-  )
+  return (data ?? []).map((d) => normaliseArticle(d as unknown as Record<string, unknown>))
 }
 
 export async function getLatestArticles(

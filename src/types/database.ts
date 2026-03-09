@@ -141,6 +141,7 @@ export type Database = {
           featured_rank: number | null
           is_featured: boolean
           is_live: boolean
+          top_story_rank: number | null
           view_count: number
           published_at: string | null
           created_at: string
@@ -168,6 +169,7 @@ export type Database = {
           featured_rank?: number | null
           is_featured?: boolean
           is_live?: boolean
+          top_story_rank?: number | null
           view_count?: number
           published_at?: string | null
           created_at?: string
@@ -193,6 +195,7 @@ export type Database = {
           featured_rank?: number | null
           is_featured?: boolean
           is_live?: boolean
+          top_story_rank?: number | null
           published_at?: string | null
           updated_at?: string
         }
