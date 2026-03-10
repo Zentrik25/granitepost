@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 import { LoginForm } from '@/components/admin/LoginForm'
 
 export const metadata: Metadata = {
@@ -7,7 +6,13 @@ export const metadata: Metadata = {
   robots: { index: false },
 }
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const resolvedParams = searchParams as unknown as Record<string, string | undefined>
+  const redirectTo = resolvedParams.redirectTo ?? '/admin'
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12"
@@ -31,9 +36,7 @@ export default function LoginPage() {
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h2 className="text-lg font-bold text-gray-800 mb-6">Welcome back</h2>
-          <Suspense fallback={<div className="h-[200px] animate-pulse bg-gray-100 rounded-lg" aria-label="Loading login form..."></div>}>
-            <LoginForm />
-          </Suspense>
+          <LoginForm redirectTo={redirectTo} />
         </div>
 
         <p className="text-center text-slate-600 text-xs mt-6">
