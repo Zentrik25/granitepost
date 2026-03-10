@@ -1,16 +1,17 @@
 'use client'
 
 import { useActionState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { loginAction } from '../../app/admin/login/actions'
 
 const initialState = {
   error: null,
 }
 
-export function LoginForm() {
-  const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/admin'
+interface LoginFormProps {
+  redirectTo?: string
+}
+
+export function LoginForm({ redirectTo = '/admin' }: LoginFormProps) {
 
   const [state, formAction, isPending] = useActionState(loginAction, initialState)
 
