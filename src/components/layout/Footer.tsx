@@ -11,17 +11,23 @@ export function Footer({ categories, settings }: FooterProps) {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="bg-granite-gradient-b text-white mt-12">
+    <footer className="bg-granite-gradient-b text-white mt-12" role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="text-xl font-black tracking-tight block mb-2">
+            <Link
+              href="/"
+              aria-label={`${settings.site_name} homepage`}
+              className="text-xl font-black tracking-tight block mb-2"
+            >
               {settings.site_name}
             </Link>
+
             <p className="text-sm text-white/60 leading-relaxed">
               {settings.site_description}
             </p>
+
             {/* Social links from settings */}
             <div className="flex gap-3 mt-4">
               {settings.whatsapp_url && (
@@ -29,7 +35,7 @@ export function Footer({ categories, settings }: FooterProps) {
                   href={settings.whatsapp_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="WhatsApp"
+                  aria-label={`${settings.site_name} on WhatsApp`}
                   className="text-white/60 hover:text-granite-accent transition-colors"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -37,12 +43,13 @@ export function Footer({ categories, settings }: FooterProps) {
                   </svg>
                 </a>
               )}
+
               {settings.facebook_url && (
                 <a
                   href={settings.facebook_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Facebook"
+                  aria-label={`${settings.site_name} on Facebook`}
                   className="text-white/60 hover:text-granite-accent transition-colors"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -50,12 +57,13 @@ export function Footer({ categories, settings }: FooterProps) {
                   </svg>
                 </a>
               )}
+
               {settings.twitter_handle && (
                 <a
                   href={`https://twitter.com/${settings.twitter_handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Twitter / X"
+                  aria-label={`${settings.site_name} on X`}
                   className="text-white/60 hover:text-granite-accent transition-colors"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -67,10 +75,10 @@ export function Footer({ categories, settings }: FooterProps) {
           </div>
 
           {/* Categories */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
+          <nav aria-label="Footer sections">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
               Sections
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               {categories.slice(0, 6).map((cat) => (
                 <li key={cat.id}>
@@ -83,13 +91,13 @@ export function Footer({ categories, settings }: FooterProps) {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* More */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
+          <nav aria-label="Footer site links">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
               More
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               <li><Link href="/search" className="text-white/70 hover:text-white">Search</Link></li>
               <li><Link href="/about" className="text-white/70 hover:text-white">About Us</Link></li>
@@ -99,23 +107,32 @@ export function Footer({ categories, settings }: FooterProps) {
               <li><Link href="/ownership" className="text-white/70 hover:text-white">Ownership</Link></li>
               <li><Link href="/feed.xml" className="text-white/70 hover:text-white">RSS Feed</Link></li>
             </ul>
-          </div>
+          </nav>
 
           {/* Legal */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
+          <nav aria-label="Footer legal links">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-granite-accent mb-3">
               Legal
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               <li><Link href="/privacy-policy" className="text-white/70 hover:text-white">Privacy Policy</Link></li>
               <li><Link href="/terms-of-use" className="text-white/70 hover:text-white">Terms of Use</Link></li>
               <li><Link href="/sitemap.xml" className="text-white/70 hover:text-white">Sitemap</Link></li>
             </ul>
-          </div>
+          </nav>
         </div>
 
         <div className="border-t border-white/20 mt-8 pt-6 text-sm text-white/40">
-          &copy; {year} {settings.site_name}. All rights reserved.
+          &copy; {year} {settings.site_name}. All rights reserved. Powered by{' '}
+          <a
+            href="https://www.zentriksolutions.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white underline"
+          >
+            Zentrik Solutions
+          </a>
+          .
         </div>
       </div>
     </footer>
