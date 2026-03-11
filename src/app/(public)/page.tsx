@@ -7,10 +7,11 @@ import { LatestUpdatesSection } from '@/components/home/v2/LatestUpdatesSection'
 import { EditorialSection } from '@/components/home/v2/EditorialSection'
 import { TrendingSection } from '@/components/home/v2/TrendingSection'
 import { MostReadSection } from '@/components/home/v2/MostReadSection'
+import { SportsSection } from '@/components/home/v2/SportsSection'
+import { BusinessSection } from '@/components/home/v2/BusinessSection'
 import { OpinionSection } from '@/components/home/v2/OpinionSection'
 import { LatestFeedSection } from '@/components/home/v2/LatestFeedSection'
 import { NewsletterSection } from '@/components/home/v2/NewsletterSection'
-import { ArticleCard } from '@/components/ui/ArticleCard'
 
 import {
   getBreakingNews,
@@ -80,6 +81,8 @@ export default async function HomePage() {
     trendingArticles,
     categoryBlocks,
     opinionResult,
+    sportsResult,
+    businessResult,
     settings,
   ] = await Promise.all([
     getBreakingNews(),
@@ -87,8 +90,10 @@ export default async function HomePage() {
     getTopStories(18),
     getMostReadArticles(6),
     getTrendingArticles(6),
-    getCategoryBlocks(4, 5),
+    getCategoryBlocks(4, 5, ['sport', 'business', 'opinion']),
     getArticlesByCategory('opinion', 1, 3),
+    getArticlesByCategory('sport', 1, 5),
+    getArticlesByCategory('business', 1, 5),
     getSiteSettings(),
   ])
 
@@ -115,21 +120,28 @@ export default async function HomePage() {
     }
   })
 
+  mostRead24h.forEach((a) => usedIds.add(a.article_id))
+  trendingArticles.forEach((a) => usedIds.add(a.id))
+
+  const sportsArticles = (sportsResult.data ?? []).filter(
+    (a) => !usedIds.has(a.id)
+  )
+  sportsArticles.forEach((a) => usedIds.add(a.id))
+
+  const businessArticles = (businessResult.data ?? []).filter(
+    (a) => !usedIds.has(a.id)
+  )
+  businessArticles.forEach((a) => usedIds.add(a.id))
+
   const opinionArticles = (opinionResult.data ?? []).filter(
     (a) => !usedIds.has(a.id)
   )
   opinionArticles.forEach((a) => usedIds.add(a.id))
 
-  mostRead24h.forEach((a) => usedIds.add(a.article_id))
-  trendingArticles.forEach((a) => usedIds.add(a.id))
-
-  const latestUpdates = await getLatestFeed(Array.from(usedIds), 7)
-  latestUpdates.forEach((a) => usedIds.add(a.id))
-
-  const latestNews = await getLatestFeed(Array.from(usedIds), 12)
-  latestNews.forEach((a) => usedIds.add(a.id))
-
-  const moreStories = await getLatestFeed(Array.from(usedIds), 12)
+  // Single combined latest feed — slice in JS to avoid 2 sequential DB calls
+  const latestFeedRaw = await getLatestFeed(Array.from(usedIds), 19)
+  const latestUpdates = latestFeedRaw.slice(0, 7)
+  const latestNews = latestFeedRaw.slice(7)
 
   const ld = jsonLd(settings.site_name, settings.site_description)
 
@@ -162,27 +174,17 @@ export default async function HomePage() {
           </div>
         )}
 
+        {(sportsArticles.length > 0 || businessArticles.length > 0) && (
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+            <SportsSection articles={sportsArticles} />
+            <BusinessSection articles={businessArticles} />
+          </div>
+        )}
+
         <OpinionSection articles={opinionArticles} />
 
         {latestNews.length > 0 && (
           <LatestFeedSection articles={latestNews} />
-        )}
-
-        {moreStories.length > 0 && (
-          <section aria-label="More stories">
-            <div className="mb-5 flex items-center gap-3">
-              <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-brand-primary">
-                More Stories
-              </h2>
-              <div className="flex-1 border-b-2 border-brand-primary" />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {moreStories.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
-          </section>
         )}
 
         <NewsletterSection />

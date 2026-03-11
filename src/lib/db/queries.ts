@@ -55,16 +55,19 @@ export interface CategoryBlockData {
  * getTopLevelCategories is wrapped with React.cache so calling it here costs
  * nothing when the public layout already called it in the same render.
  * Categories with zero published articles are omitted.
+ *
+ * @param excludeSlugs - category slugs to skip (e.g. those with dedicated homepage sections)
  */
 export async function getCategoryBlocks(
   limitPerCategory = 4,
-  categoryLimit = 3
+  categoryLimit = 3,
+  excludeSlugs: string[] = []
 ): Promise<CategoryBlockData[]> {
   const categories = await getTopLevelCategories()
 
   const blocks = await Promise.all(
     categories
-      .filter((c) => c.is_active)
+      .filter((c) => c.is_active && !excludeSlugs.includes(c.slug))
       .slice(0, categoryLimit)
       .map(async (category): Promise<CategoryBlockData> => {
         // Pass category.id directly — avoids one slug-to-id query per category.
