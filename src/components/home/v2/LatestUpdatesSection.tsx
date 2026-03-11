@@ -1,4 +1,5 @@
 import { LatestUpdateCard } from '@/components/home/LatestUpdateCard'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import type { ArticleWithRelations } from '@/types'
 
 interface Props {
@@ -10,12 +11,11 @@ export function LatestUpdatesSection({ articles }: Props) {
 
   return (
     <section aria-label="Latest updates">
-      <div className="mb-5 flex items-center gap-3">
-        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-brand-primary">
-          Latest Updates
-        </h2>
-        <div className="flex-1 border-b-2 border-brand-primary" />
-      </div>
+      <SectionDivider
+        label="Latest Updates"
+        gradient="from-sky-900 via-sky-800 to-blue-700"
+        className="mb-5"
+      />
 
       <div className="space-y-3">
         {articles.map((article) => (

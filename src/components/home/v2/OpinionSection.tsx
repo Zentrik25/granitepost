@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { memo } from 'react'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
 import type { ArticleWithRelations } from '@/types'
 
@@ -90,13 +91,12 @@ export function OpinionSection({ articles }: Props) {
       aria-label="Opinion and analysis"
       className="rounded-2xl bg-gradient-to-br from-[#0D1117] via-[#1C2B3A] to-[#2E4A62] px-6 py-7 sm:px-8"
     >
-      {/* Header */}
-      <div className="mb-7 flex items-center gap-3">
-        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-white">
-          Opinion &amp; Analysis
-        </h2>
-        <div className="flex-1 border-b border-white/20" />
-      </div>
+      <SectionDivider
+        label="Opinion & Analysis"
+        gradient="from-amber-700 via-amber-600 to-yellow-500"
+        dark
+        className="mb-7"
+      />
 
       {/* Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">

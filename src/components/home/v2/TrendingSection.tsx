@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { CategoryBadge } from '@/components/ui/CategoryBadge'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
 import type { ArticleWithRelations } from '@/types'
 
@@ -109,12 +110,11 @@ export function TrendingSection({ articles }: Props) {
 
   return (
     <section aria-label="Trending now">
-      <div className="mb-5">
-        <h2 className="mb-2 text-xs font-black uppercase tracking-widest text-brand-primary">
-          Trending Now
-        </h2>
-        <div className="w-full border-b-2 border-accent-amber" />
-      </div>
+      <SectionDivider
+        label="Trending Now"
+        gradient="from-orange-700 via-orange-600 to-amber-500"
+        className="mb-5"
+      />
 
       <div className="space-y-3">
         {articles.slice(0, 3).map((article, i) => (

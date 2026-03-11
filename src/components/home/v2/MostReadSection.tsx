@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 
 type MostReadArticle = {
   article_id: string
@@ -42,12 +43,11 @@ export function MostReadSection({ articles }: Props) {
 
   return (
     <section aria-label="Most read">
-      <div className="mb-5 flex items-center gap-3">
-        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-brand-primary">
-          Most Read
-        </h2>
-        <div className="flex-1 border-b-2 border-brand-primary" />
-      </div>
+      <SectionDivider
+        label="Most Read"
+        gradient="from-violet-900 via-purple-800 to-purple-700"
+        className="mb-5"
+      />
 
       <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
         <ol>

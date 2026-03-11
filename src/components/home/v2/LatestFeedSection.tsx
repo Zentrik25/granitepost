@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
 import type { ArticleWithRelations } from '@/types'
 
@@ -23,13 +24,12 @@ export function LatestFeedSection({ articles }: LatestFeedSectionProps) {
   if (!articles.length) return null
 
   return (
-    <section aria-label="Latest updates">
-      <div className="mb-4 flex items-center gap-3 border-b-2 border-gray-900 pb-2">
-        <h2 className="text-xs font-black uppercase tracking-widest text-gray-900">
-          Latest Updates
-        </h2>
-        <div className="h-px flex-1 bg-gray-200" />
-      </div>
+    <section aria-label="Latest news">
+      <SectionDivider
+        label="Latest News"
+        gradient="from-slate-700 via-slate-600 to-slate-500"
+        className="mb-4"
+      />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {articles.map((article) => (

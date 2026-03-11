@@ -19,6 +19,14 @@ export const metadata: Metadata = {
     template: `%s | ${siteName}`,
   },
   description: 'Breaking news and in-depth coverage from Zimbabwe and across Africa.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+  },
   openGraph: {
     type: 'website',
     siteName,
