@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "newsonline-eight.vercel.app"
+        }
+      ],
+      "destination": "https://www.thegranite.co.zw/$1",
+      "permanent": true
+    }
+  ]
+}
