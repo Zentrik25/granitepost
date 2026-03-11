@@ -45,9 +45,17 @@ export interface Category {
   slug: string
   description?: string | null
   parent_id?: string | null
+  display_order?: number | null
+  seo_title?: string | null
+  seo_description?: string | null
   is_active?: boolean | null
   created_at?: string | null
   updated_at?: string | null
+}
+
+/** A top-level category with its immediate children populated. */
+export interface CategoryWithChildren extends Category {
+  children: Category[]
 }
 
 export interface MostReadArticle {
