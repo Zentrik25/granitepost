@@ -152,20 +152,33 @@ export async function getArticlesByCategory(
   const from = (page - 1) * limit
   const to = from + limit - 1
 
-  // Resolve category id first
+  // Resolve category
   const { data: cat } = await supabase
     .from('categories')
-    .select('id')
+    .select('id, parent_id')
     .eq('slug', categorySlug)
     .single()
 
   if (!cat) return { data: [], total: 0, page, limit, hasMore: false }
 
+  // For a top-level (parent) category, include articles from all its children
+  // so the page shows a unified feed without editors having to re-categorise.
+  let categoryIds: string[] = [cat.id]
+  if (!cat.parent_id) {
+    const { data: children } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('parent_id', cat.id)
+    if (children?.length) {
+      categoryIds = [cat.id, ...children.map((c) => c.id)]
+    }
+  }
+
   const { data, count, error } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT, { count: 'exact' })
     .eq('status', 'PUBLISHED')
-    .eq('category_id', cat.id)
+    .in('category_id', categoryIds)
     .order('published_at', { ascending: false })
     .range(from, to)
 

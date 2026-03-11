@@ -205,11 +205,41 @@ export function ArticleForm({
               className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
             >
               <option value="">— No category —</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+              {(() => {
+                const parents = categories.filter((c) => !c.parent_id)
+                const childrenOf = (parentId: string) =>
+                  categories.filter((c) => c.parent_id === parentId)
+                const orphans = categories.filter(
+                  (c) => c.parent_id && !categories.find((p) => p.id === c.parent_id)
+                )
+                return (
+                  <>
+                    {parents.map((parent) => {
+                      const subs = childrenOf(parent.id)
+                      return subs.length > 0 ? (
+                        <optgroup key={parent.id} label={parent.name}>
+                          <option value={parent.id}>{parent.name} (all)</option>
+                          {subs.map((sub) => (
+                            <option key={sub.id} value={sub.id}>
+                              {'  '}
+                              {sub.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ) : (
+                        <option key={parent.id} value={parent.id}>
+                          {parent.name}
+                        </option>
+                      )
+                    })}
+                    {orphans.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </>
+                )
+              })()}
             </select>
             <FieldError errors={fe?.category_id} />
           </div>

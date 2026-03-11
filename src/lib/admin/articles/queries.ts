@@ -19,6 +19,7 @@ export interface AdminArticleListRow {
 export interface CategoryOption {
   id: string
   name: string
+  parent_id: string | null
 }
 
 export interface TagOption {
@@ -50,14 +51,14 @@ export async function getArticleTagIds(articleId: string): Promise<string[]> {
   return (data ?? []).map((r) => r.tag_id)
 }
 
-/** All categories, ordered by name, for form dropdowns. */
+/** All categories, ordered by display_order then name, for form dropdowns. */
 export async function getCategoriesForForm(): Promise<CategoryOption[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('categories')
-    .select('id, name')
+    .select('id, name, parent_id')
     .eq('is_active', true)
-    .order('name')
+    .order('display_order', { ascending: true })
   return (data ?? []) as CategoryOption[]
 }
 
