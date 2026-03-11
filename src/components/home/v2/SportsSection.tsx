@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
 import type { ArticleWithRelations } from '@/types'
 
@@ -84,18 +85,19 @@ export function SportsSection({ articles }: Props) {
 
   return (
     <section aria-label="Sport">
-      <div className="mb-4 flex items-center gap-3">
-        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-gray-900">
-          Sport
-        </h2>
-        <div className="flex-1 border-b-2 border-green-600" />
-        <Link
-          href="/category/sport"
-          className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-green-600 transition-colors hover:text-green-500"
-        >
-          See all →
-        </Link>
-      </div>
+      <SectionDivider
+        label="Sport"
+        gradient="from-emerald-800 via-green-700 to-green-600"
+        className="mb-4"
+        endSlot={
+          <Link
+            href="/category/sport"
+            className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-green-600 transition-colors hover:text-green-500"
+          >
+            See all →
+          </Link>
+        }
+      />
 
       <div className="flex flex-col gap-3">
         {lead && <SportsLeadCard article={lead} />}

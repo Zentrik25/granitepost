@@ -1,4 +1,5 @@
 import { ArticleCard } from '@/components/ui/ArticleCard'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import type { ArticleWithRelations } from '@/types'
 
 interface TopStoriesSectionProps {
@@ -10,12 +11,11 @@ export function TopStoriesSection({ articles }: TopStoriesSectionProps) {
 
   return (
     <section aria-label="Top stories">
-      <div className="mb-5 flex items-center gap-3 border-b-2 border-gray-900 pb-2">
-        <h2 className="text-xs font-black uppercase tracking-widest text-gray-900">
-          Top Stories
-        </h2>
-        <div className="h-px flex-1 bg-gray-200" />
-      </div>
+      <SectionDivider
+        label="Top Stories"
+        gradient="from-red-900 via-red-800 to-red-700"
+        className="mb-5"
+      />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
 import type { ArticleWithRelations } from '@/types'
 
@@ -84,18 +85,19 @@ export function BusinessSection({ articles }: Props) {
 
   return (
     <section aria-label="Business and economy">
-      <div className="mb-4 flex items-center gap-3">
-        <h2 className="whitespace-nowrap text-xs font-black uppercase tracking-widest text-gray-900">
-          Business &amp; Economy
-        </h2>
-        <div className="flex-1 border-b-2 border-blue-700" />
-        <Link
-          href="/category/business"
-          className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-blue-700 transition-colors hover:text-blue-600"
-        >
-          See all →
-        </Link>
-      </div>
+      <SectionDivider
+        label="Business & Economy"
+        gradient="from-teal-800 via-teal-700 to-cyan-600"
+        className="mb-4"
+        endSlot={
+          <Link
+            href="/category/business"
+            className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-teal-700 transition-colors hover:text-teal-600"
+          >
+            See all →
+          </Link>
+        }
+      />
 
       <div className="flex flex-col gap-3">
         {lead && <BusinessLeadCard article={lead} />}

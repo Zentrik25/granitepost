@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { relativeTime } from '@/lib/utils/slug'
 import { ArticleCard } from '@/components/ui/ArticleCard'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import type { Category, ArticleWithRelations } from '@/types'
 
 export interface EditorialBlock {
@@ -104,6 +105,11 @@ export function EditorialSection({ blocks }: EditorialSectionProps) {
 
   return (
     <section aria-label="News by category">
+      <SectionDivider
+        label="News by Category"
+        gradient="from-stone-700 via-stone-600 to-stone-500"
+        className="mb-8"
+      />
       <div
         className={`grid grid-cols-1 gap-8 ${blocks.length === 1
           ? 'md:grid-cols-1'
