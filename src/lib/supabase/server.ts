@@ -32,6 +32,30 @@ export async function createClient() {
 
 export const createServerSupabaseClient = createClient
 
+/**
+ * Stateless anon client — no cookies, no session.
+ * Use this for ALL public ISR/SSG queries (article pages, homepage, category pages).
+ *
+ * Why: calling cookies() anywhere in a render tree opts the entire route segment
+ * into dynamic rendering, silently breaking revalidate and generateStaticParams.
+ * This client avoids that entirely. RLS still enforces PUBLISHED-only reads via
+ * the anon key — no security regression.
+ *
+ * Rule: use createClient() only for admin/auth routes that need session context.
+ */
+export function createPublicClient() {
+  return createSupabaseClient<Database>(
+    serverEnv.NEXT_PUBLIC_SUPABASE_URL,
+    serverEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  )
+}
+
 export function createServiceRoleSupabaseClient() {
   return createSupabaseClient<Database>(
     serverEnv.NEXT_PUBLIC_SUPABASE_URL,

@@ -6,6 +6,7 @@ import {
   getArticleTagIds,
   getCategoriesForForm,
   getTagsForForm,
+  getAuthorsForForm,
 } from '@/lib/admin/articles/queries'
 import { updateArticleAction } from '@/app/(admin)/admin/articles/actions'
 import { ArticleForm } from '@/components/admin/articles/ArticleForm'
@@ -20,12 +21,13 @@ interface Props {
 export default async function EditArticlePage({ params }: Props) {
   const { id } = await params
 
-  const [{ user: _user, role }, article, tagIds, categories, tags] = await Promise.all([
+  const [{ user, role }, article, tagIds, categories, tags, authors] = await Promise.all([
     requireAuth(),
     getArticleForEdit(id),
     getArticleTagIds(id),
     getCategoriesForForm(),
     getTagsForForm(),
+    getAuthorsForForm(),
   ])
 
   if (!article) notFound()
@@ -53,6 +55,9 @@ export default async function EditArticlePage({ params }: Props) {
         selectedTagIds={tagIds}
         categories={categories}
         tags={tags}
+        authors={authors}
+        currentUserId={user.id}
+        userRole={role}
         mode="edit"
       />
     </div>

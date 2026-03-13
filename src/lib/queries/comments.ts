@@ -1,9 +1,9 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createPublicClient } from '@/lib/supabase/server'
 import type { Comment } from '@/types'
 
 export async function getApprovedComments(articleId: string): Promise<Comment[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('comments')
     .select('*')

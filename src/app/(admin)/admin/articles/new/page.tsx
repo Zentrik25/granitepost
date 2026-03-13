@@ -1,14 +1,17 @@
 import type { Metadata } from 'next'
 import { ArticleForm } from '@/components/admin/articles/ArticleForm'
-import { getCategoriesForForm, getTagsForForm } from '@/lib/admin/articles/queries'
+import { getCategoriesForForm, getTagsForForm, getAuthorsForForm } from '@/lib/admin/articles/queries'
 import { createArticleAction } from '@/app/(admin)/admin/articles/actions'
+import { requireAuth } from '@/lib/auth/guards'
 
 export const metadata: Metadata = { title: 'New Article — Admin' }
 
 export default async function NewArticlePage() {
-  const [categories, tags] = await Promise.all([
+  const [{ user, role }, categories, tags, authors] = await Promise.all([
+    requireAuth(),
     getCategoriesForForm(),
     getTagsForForm(),
+    getAuthorsForForm(),
   ])
 
   return (
@@ -18,6 +21,9 @@ export default async function NewArticlePage() {
         saveAction={createArticleAction}
         categories={categories}
         tags={tags}
+        authors={authors}
+        currentUserId={user.id}
+        userRole={role}
         mode="create"
       />
     </div>

@@ -13,6 +13,7 @@ const navItems: {
 }[] = [
   { label: 'Dashboard', href: '/admin', icon: '▣', roles: ['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR'] },
   { label: 'Articles', href: '/admin/articles', icon: '✎', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+  { label: 'Authors', href: '/admin/authors', icon: '✦', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
   { label: 'Categories', href: '/admin/categories', icon: '◈', roles: ['ADMIN', 'EDITOR'] },
   { label: 'Tags', href: '/admin/tags', icon: '#', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
   { label: 'Media', href: '/admin/media', icon: '⊞', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },

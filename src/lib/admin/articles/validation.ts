@@ -55,6 +55,7 @@ export const articleInputSchema = z
       .nullable()
       .optional(),
     tag_ids: z.array(z.string().uuid()).default([]),
+    author_id: z.string().uuid('Invalid author').optional().or(z.literal('')),
     status: z.enum(['DRAFT', 'REVIEW', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
   })
   .superRefine((data, ctx) => {

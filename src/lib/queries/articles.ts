@@ -1,5 +1,5 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createPublicClient } from '@/lib/supabase/server'
 import type { ArticleWithRelations, MostReadArticle, PaginatedResult } from '@/types'
 
 export const ARTICLE_SELECT = `
@@ -9,7 +9,7 @@ export const ARTICLE_SELECT = `
   is_breaking, breaking_expires_at, featured_rank, is_featured, top_story_rank, view_count,
   published_at, created_at, updated_at,
   category:categories(id, name, slug),
-  author:profiles(id, full_name, avatar_url),
+  author:profiles(id, full_name, avatar_url, slug, title),
   tags:article_tags(tag:tags(id, name, slug, created_at))
 `
 
@@ -26,7 +26,7 @@ function normaliseArticle(raw: Record<string, unknown>): ArticleWithRelations {
 export async function getPublishedArticleBySlug(
   slug: string
 ): Promise<ArticleWithRelations | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -39,7 +39,7 @@ export async function getPublishedArticleBySlug(
 }
 
 export async function getHeroArticle(): Promise<ArticleWithRelations | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -61,7 +61,7 @@ export async function getHeroArticle(): Promise<ArticleWithRelations | null> {
 export async function getFeaturedArticles(
   limit = 4
 ): Promise<ArticleWithRelations[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -75,7 +75,7 @@ export async function getFeaturedArticles(
 }
 
 export async function getBreakingNews(): Promise<ArticleWithRelations[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -90,7 +90,7 @@ export async function getBreakingNews(): Promise<ArticleWithRelations[]> {
 }
 
 export async function getTrendingArticles(limit = 6): Promise<ArticleWithRelations[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -102,7 +102,7 @@ export async function getTrendingArticles(limit = 6): Promise<ArticleWithRelatio
 }
 
 export async function getTopStories(limit = 6): Promise<ArticleWithRelations[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('articles')
     .select(ARTICLE_SELECT)
@@ -118,7 +118,7 @@ export async function getLatestArticles(
   page = 1,
   limit = 12
 ): Promise<PaginatedResult<ArticleWithRelations>> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -148,7 +148,7 @@ export async function getArticlesByCategory(
   page = 1,
   limit = 12
 ): Promise<PaginatedResult<ArticleWithRelations>> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -206,7 +206,7 @@ export async function getArticlesByCategoryId(
   page = 1,
   limit = 12
 ): Promise<PaginatedResult<ArticleWithRelations>> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -237,7 +237,7 @@ export async function getArticlesByTag(
   page = 1,
   limit = 12
 ): Promise<PaginatedResult<ArticleWithRelations>> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -282,7 +282,7 @@ export async function getRelatedArticles(
   categoryId: string | null,
   limit = 4
 ): Promise<ArticleWithRelations[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   let query = supabase
     .from('articles')
@@ -307,7 +307,7 @@ export async function searchArticles(
   page = 1,
   limit = 12
 ): Promise<PaginatedResult<ArticleWithRelations>> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
@@ -366,7 +366,7 @@ export async function getAllArticlesAdmin(
 // ── Analytics ─────────────────────────────────────────────────────────────────
 
 export async function getMostRead24h(limit = 5): Promise<MostReadArticle[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase.rpc('most_read_24h', { p_limit: limit })
   if (error) return []
   return data as MostReadArticle[]
