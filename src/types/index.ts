@@ -34,7 +34,7 @@ export interface ArticleWithRelations {
   created_at?: string | null
   updated_at?: string | null
   category?: { id: string; name: string; slug: string } | null
-  author?: { id: string; full_name?: string | null; avatar_url?: string | null } | null
+  author?: { id: string; full_name?: string | null; avatar_url?: string | null; slug?: string | null; title?: string | null } | null
   tags?: { id: string; name: string; slug: string; created_at: string }[]
 }
 

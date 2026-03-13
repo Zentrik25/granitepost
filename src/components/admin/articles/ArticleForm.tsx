@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react'
 import type { Database } from '@/types/database'
 import type { ActionResult } from '@/lib/admin/articles/validation'
-import type { CategoryOption, TagOption } from '@/lib/admin/articles/queries'
+import type { CategoryOption, TagOption, AuthorOption } from '@/lib/admin/articles/queries'
 
 type ArticleRow = Database['public']['Tables']['articles']['Row']
 
@@ -23,6 +23,9 @@ interface Props {
   selectedTagIds?: string[]
   categories: CategoryOption[]
   tags: TagOption[]
+  authors: AuthorOption[]
+  currentUserId: string
+  userRole: string
   mode: 'create' | 'edit'
 }
 
@@ -49,6 +52,9 @@ export function ArticleForm({
   selectedTagIds = [],
   categories,
   tags,
+  authors,
+  currentUserId,
+  userRole,
   mode,
 }: Props) {
   const [state, formAction, isPending] = useActionState(saveAction, INITIAL)
@@ -243,6 +249,36 @@ export function ArticleForm({
             </select>
             <FieldError errors={fe?.category_id} />
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="af-author" className="mb-1 block text-xs font-semibold">
+            Author <span className="text-brand-red">*</span>
+          </label>
+          {userRole === 'AUTHOR' ? (
+            // AUTHOR role: locked to their own profile
+            <>
+              <input type="hidden" name="author_id" value={currentUserId} />
+              <p className="text-sm text-brand-muted">
+                {authors.find((a) => a.id === currentUserId)?.full_name ?? 'You'}
+              </p>
+            </>
+          ) : (
+            <select
+              id="af-author"
+              name="author_id"
+              defaultValue={article?.author_id ?? currentUserId}
+              className="w-full border border-brand-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+            >
+              <option value="">— Unassigned —</option>
+              {authors.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.full_name ?? a.id}
+                </option>
+              ))}
+            </select>
+          )}
+          <FieldError errors={fe?.author_id} />
         </div>
 
         <div>

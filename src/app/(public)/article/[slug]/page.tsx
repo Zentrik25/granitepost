@@ -31,11 +31,34 @@ import {
 import { resolveOgImage } from '@/lib/utils/images'
 import { CategoryBadge } from '@/components/ui/CategoryBadge'
 import { BackToHome } from '@/components/article/BackToHome'
+import { createPublicClient } from '@/lib/supabase/server'
 
 export const revalidate = 300
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+/**
+ * Pre-build the 200 most recently published articles at deploy time.
+ * Any slug outside this set is served via ISR on first request, then
+ * cached for `revalidate` seconds. Uses createPublicClient (no cookies)
+ * so this runs correctly in the build context where cookies don't exist.
+ */
+export async function generateStaticParams() {
+  const supabase = createPublicClient()
+  const { data } = await supabase
+    .from('articles')
+    .select('slug')
+    .eq('status', 'PUBLISHED')
+    .not('slug', 'is', null)
+    .order('published_at', { ascending: false })
+    .limit(200)
+
+  if (!data) return []
+  return data
+    .filter((a): a is { slug: string } => typeof a.slug === 'string')
+    .map((a) => ({ slug: a.slug }))
 }
 
 const getArticle = cache(getPublishedArticleBySlug)
@@ -222,9 +245,18 @@ export default async function ArticlePage({ params }: Props) {
               {article.author?.full_name && (
                 <span>
                   By{' '}
-                  <strong className="text-brand-dark">
-                    {article.author.full_name}
-                  </strong>
+                  {article.author.slug ? (
+                    <Link
+                      href={`/author/${article.author.slug}`}
+                      className="font-bold text-brand-dark hover:underline"
+                    >
+                      {article.author.full_name}
+                    </Link>
+                  ) : (
+                    <strong className="text-brand-dark">
+                      {article.author.full_name}
+                    </strong>
+                  )}
                 </span>
               )}
 

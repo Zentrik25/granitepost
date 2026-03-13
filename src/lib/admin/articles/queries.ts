@@ -27,6 +27,11 @@ export interface TagOption {
   name: string
 }
 
+export interface AuthorOption {
+  id: string
+  full_name: string | null
+}
+
 // ── Queries ───────────────────────────────────────────────────────────────────
 
 /** Fetch a single article by id for admin editing. No published filter. */
@@ -60,6 +65,16 @@ export async function getCategoriesForForm(): Promise<CategoryOption[]> {
     .eq('is_active', true)
     .order('display_order', { ascending: true })
   return (data ?? []) as CategoryOption[]
+}
+
+/** All profiles ordered by name, for author assignment dropdown. */
+export async function getAuthorsForForm(): Promise<AuthorOption[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .order('full_name')
+  return (data ?? []) as AuthorOption[]
 }
 
 /** All tags, ordered by name, for form selection. */

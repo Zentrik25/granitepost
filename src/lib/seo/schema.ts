@@ -83,6 +83,28 @@ export function buildNewsArticleSchema(input: NewsArticleSchemaInput) {
   }
 }
 
+// ── Person (for author pages) ─────────────────────────────────────────────────
+
+export interface PersonSchemaInput {
+  name: string
+  url: string
+  description?: string | null
+  image?: string | null
+  sameAs?: string[]
+}
+
+export function buildPersonSchema(input: PersonSchemaInput) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: input.name,
+    url: input.url,
+    description: input.description ?? undefined,
+    image: input.image ?? undefined,
+    sameAs: input.sameAs?.length ? input.sameAs : undefined,
+  }
+}
+
 // ── WebPage (for listing pages) ───────────────────────────────────────────────
 
 export function buildWebPageSchema(opts: {

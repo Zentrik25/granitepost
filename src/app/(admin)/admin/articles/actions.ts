@@ -63,6 +63,7 @@ function parseFormData(formData: FormData): Record<string, unknown> {
     featured_rank: featuredRaw ? Number(featuredRaw) : null,
     top_story_rank: isTopStory && topStoryRaw ? Number(topStoryRaw) : null,
     tag_ids: tagIds,
+    author_id: (formData.get('author_id') as string | null) ?? '',
     status: formData.get('status') ?? 'DRAFT',
   }
 }
@@ -147,11 +148,17 @@ export async function createArticleAction(
       .eq('top_story_rank', parsed.data.top_story_rank)
   }
 
+  // AUTHOR role is locked to their own profile; ADMIN/EDITOR may assign any author
+  const authorId =
+    role === 'AUTHOR' || !parsed.data.author_id
+      ? user.id
+      : parsed.data.author_id
+
   const { data: article, error } = await supabase
     .from('articles')
     .insert({
       ...buildDbPayload(parsed.data),
-      author_id: user.id,
+      author_id: authorId,
       published_at: parsed.data.status === 'PUBLISHED' ? new Date().toISOString() : null,
     })
     .select('id, slug')
@@ -245,10 +252,17 @@ export async function updateArticleAction(
       .neq('id', id)
   }
 
+  // ADMIN/EDITOR may reassign author; AUTHOR role cannot change author_id
+  const authorId =
+    role !== 'AUTHOR' && parsed.data.author_id
+      ? parsed.data.author_id
+      : undefined
+
   const { error: updateErr } = await supabase
     .from('articles')
     .update({
       ...buildDbPayload(parsed.data),
+      ...(authorId ? { author_id: authorId } : {}),
       // Set published_at only on first publish
       published_at:
         parsed.data.status === 'PUBLISHED' && !current.published_at
@@ -295,7 +309,7 @@ export async function publishArticleAction(
 
   const { data: article, error: fetchErr } = await supabase
     .from('articles')
-    .select('id, slug, status, body_html, is_breaking, breaking_expires_at')
+    .select('id, slug, status, body_html, is_breaking, breaking_expires_at, author_id')
     .eq('id', id)
     .single()
 
@@ -309,6 +323,10 @@ export async function publishArticleAction(
 
   if (!article.body_html?.trim()) {
     return { success: false, error: 'Article body is required before publishing.' }
+  }
+
+  if (!article.author_id) {
+    return { success: false, error: 'An author must be assigned before publishing.' }
   }
 
   if (article.is_breaking) {
