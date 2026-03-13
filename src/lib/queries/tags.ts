@@ -1,9 +1,9 @@
 import 'server-only'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import type { Tag } from '@/types'
 
 export async function getAllTags(): Promise<Tag[]> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data } = await supabase
     .from('tags')
     .select('*')
@@ -13,7 +13,7 @@ export async function getAllTags(): Promise<Tag[]> {
 }
 
 export async function getTagBySlug(slug: string): Promise<Tag | null> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const { data, error } = await supabase
     .from('tags')
     .select('*')

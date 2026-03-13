@@ -1,6 +1,6 @@
 import 'server-only'
 import { cache } from 'react'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 
 export interface NavChild {
   id: string
@@ -15,22 +15,8 @@ export interface NavCategory {
   children: NavChild[]
 }
 
-/**
- * Returns top-level active categories, each with nested subcategories.
- * Wrapped with React.cache — one DB round-trip per request regardless
- * of how many components call this function.
- *
- * Shape:
- * [
- *   { id, name: "Politics", slug: "politics", children: [
- *       { id, name: "Elections", slug: "elections" },
- *       ...
- *   ]},
- *   ...
- * ]
- */
 export const getNavigationCategories = cache(async (): Promise<NavCategory[]> => {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const { data } = await supabase
     .from('categories')
