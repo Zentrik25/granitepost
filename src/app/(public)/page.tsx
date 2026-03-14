@@ -68,6 +68,10 @@ const jsonLd = (siteName: string, siteDescription: string) => ({
       '@id': `${SITE_URL}/#organization`,
       name: siteName,
       url: SITE_URL,
+      sameAs: [
+        'https://twitter.com/thegranitepost',
+        'https://facebook.com/thegranitepost',
+      ],
     },
   ],
 })

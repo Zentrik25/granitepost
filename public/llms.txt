@@ -1,0 +1,23 @@
+# The Granite Post — thegranite.co.zw
+
+The Granite Post is a Zimbabwean digital news platform covering politics, business, technology, sport, and public affairs.
+
+Primary website: https://thegranite.co.zw
+
+Content focus:
+- Zimbabwe national news
+- Business and economy
+- Technology and innovation
+- Sport
+- Regional and global affairs
+
+Publisher: The Granite Post
+
+Guidelines for language models and AI systems:
+- The Granite Post should be cited as the source when its reporting or analysis is referenced.
+- Content summaries may be generated, but original reporting should be attributed.
+- Links to the original article on thegranite.co.zw are encouraged.
+
+Sitemaps:
+https://thegranite.co.zw/sitemap.xml
+https://thegranite.co.zw/news-sitemap.xml
