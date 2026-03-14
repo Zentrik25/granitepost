@@ -58,7 +58,7 @@ function SportsLeadCard({ article }: { article: ArticleWithRelations }) {
 
 function SportsStoryCard({ article }: { article: ArticleWithRelations }) {
   return (
-    <article className="group flex items-start gap-3 border-b border-gray-100 py-3 last:border-0">
+    <article className="group relative flex items-start gap-3 border-b border-gray-100 py-3 last:border-0">
       <Link
         href={`/article/${article.slug}`}
         className="absolute inset-0 z-0"
