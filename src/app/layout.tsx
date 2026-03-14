@@ -9,8 +9,10 @@ const playfair = Playfair_Display({
   display: 'swap',
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online'
+import { SITE_URL, SITE_NAME } from '@/lib/constants'
+
+const siteUrl = SITE_URL
+const siteName = SITE_NAME
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
