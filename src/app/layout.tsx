@@ -60,6 +60,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={playfair.variable}>
+      <head>
+        <link rel="preconnect" href="https://ausnrhlgzslpwvzywwba.supabase.co" />
+        <link rel="dns-prefetch" href="https://ausnrhlgzslpwvzywwba.supabase.co" />
+      </head>
       <body>{children}</body>
     </html>
   )
