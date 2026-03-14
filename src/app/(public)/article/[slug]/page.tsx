@@ -29,6 +29,7 @@ import {
 } from '@/lib/seo/schema'
 
 import { resolveOgImage } from '@/lib/utils/images'
+import { SITE_URL, SITE_NAME } from '@/lib/constants'
 import { CategoryBadge } from '@/components/ui/CategoryBadge'
 import { BackToHome } from '@/components/article/BackToHome'
 import { createPublicClient } from '@/lib/supabase/server'
@@ -68,21 +69,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticle(slug)
   if (!article) return {}
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
-
-  const siteName =
-    process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online'
-
   const title = article.og_title ?? article.title
   const description = article.og_description ?? article.excerpt ?? ''
 
-  const ogImage = resolveOgImage(
-    article.og_image_url,
-    article.hero_image_url
-  )
+  const ogImage =
+    resolveOgImage(article.og_image_url, article.hero_image_url) ??
+    `${SITE_URL}/opengraph-image`
 
-  const url = `${siteUrl}/article/${article.slug}`
+  const url = `${SITE_URL}/article/${article.slug}`
 
   return {
     title,
@@ -94,26 +88,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url,
       title,
       description,
-      siteName,
-      images: ogImage
-        ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
-        : [],
+      siteName: SITE_NAME,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       publishedTime: article.published_at ?? undefined,
       modifiedTime: article.updated_at ?? undefined,
-      authors: article.author?.full_name
-        ? [article.author.full_name]
-        : [],
+      authors: article.author?.full_name ? [article.author.full_name] : [],
       section: article.category?.name,
-      tags: (article.tags ?? []).map(
-        (t: { name: string }) => t.name
-      ),
+      tags: (article.tags ?? []).map((t: { name: string }) => t.name),
     },
 
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ogImage ? [ogImage] : [],
+      images: [{ url: ogImage, width: 1200, height: 630 }],
     },
   }
 }
