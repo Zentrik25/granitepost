@@ -130,3 +130,70 @@ export async function syncArticleTags(
       .insert(tagIds.map((tag_id) => ({ article_id: articleId, tag_id })))
   }
 }
+
+function slugifyTag(name: string): string {
+  return name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
+/** Find-or-create tags by name, then sync article_tags. */
+export async function syncArticleTagsByNames(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleId: string,
+  tagNamesRaw: string
+): Promise<void> {
+  const names = tagNamesRaw
+    .split(',')
+    .map((n) => n.trim())
+    .filter(Boolean)
+
+  if (names.length === 0) {
+    await supabase.from('article_tags').delete().eq('article_id', articleId)
+    return
+  }
+
+  const tagIds: string[] = []
+
+  for (const name of names) {
+    const slug = slugifyTag(name)
+    if (!slug) continue
+
+    // Try to find existing tag
+    const { data: existing } = await supabase
+      .from('tags')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (existing) {
+      tagIds.push(existing.id)
+    } else {
+      // Create new tag
+      const { data: created } = await supabase
+        .from('tags')
+        .insert({ name, slug })
+        .select('id')
+        .single()
+      if (created) tagIds.push(created.id)
+    }
+  }
+
+  await supabase.from('article_tags').delete().eq('article_id', articleId)
+  if (tagIds.length > 0) {
+    await supabase
+      .from('article_tags')
+      .insert(tagIds.map((tag_id) => ({ article_id: articleId, tag_id })))
+  }
+}
+
+/** Fetch tag names for an article as a comma-separated string. */
+export async function getArticleTagNames(articleId: string): Promise<string> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('article_tags')
+    .select('tag:tags(name)')
+    .eq('article_id', articleId)
+  const names = (data ?? [])
+    .map((r) => (r.tag as unknown as { name: string } | null)?.name)
+    .filter(Boolean) as string[]
+  return names.join(', ')
+}

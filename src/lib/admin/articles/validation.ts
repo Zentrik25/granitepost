@@ -54,7 +54,7 @@ export const articleInputSchema = z
       .max(6, 'Must be 6 or less')
       .nullable()
       .optional(),
-    tag_ids: z.array(z.string().uuid()).default([]),
+    tag_names: z.string().default(""),
     author_id: z.string().uuid('Invalid author').optional().or(z.literal('')),
     status: z.enum(['DRAFT', 'REVIEW', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
   })
