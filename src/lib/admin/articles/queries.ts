@@ -197,3 +197,39 @@ export async function getArticleTagNames(articleId: string): Promise<string> {
     .filter(Boolean) as string[]
   return names.join(', ')
 }
+
+export interface TopStorySlot {
+  rank: number
+  articleId: string | null
+  title: string | null
+}
+
+/** Returns all 6 top story slots with current occupancy. */
+export async function getTopStorySlots(excludeArticleId?: string): Promise<TopStorySlot[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('articles')
+    .select('id, title, top_story_rank')
+    .not('top_story_rank', 'is', null)
+    .eq('status', 'PUBLISHED')
+
+  const occupied = new Map<number, { id: string; title: string }>()
+  for (const row of data ?? []) {
+    if (row.top_story_rank != null) {
+      occupied.set(row.top_story_rank, { id: row.id, title: row.title })
+    }
+  }
+
+  return [1, 2, 3, 4, 5, 6].map((rank) => {
+    const occupant = occupied.get(rank)
+    // treat as empty if occupied by the article currently being edited
+    if (occupant && occupant.id === excludeArticleId) {
+      return { rank, articleId: null, title: null }
+    }
+    return {
+      rank,
+      articleId: occupant?.id ?? null,
+      title: occupant?.title ?? null,
+    }
+  })
+}
