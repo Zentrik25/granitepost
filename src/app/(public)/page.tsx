@@ -161,6 +161,8 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: toJsonLd(websiteSchema) }}
       />
 
+      <h1 className="sr-only">The Granite Post — Breaking Zimbabwe News &amp; In-Depth Coverage</h1>
+
       <BreakingTicker articles={breaking} />
 
       <HeroSection articles={heroSlides} />

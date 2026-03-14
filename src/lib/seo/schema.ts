@@ -76,7 +76,7 @@ export function buildNewsArticleSchema(input: NewsArticleSchemaInput) {
             '@type': 'ImageObject',
             url: input.imageUrl,
             width: 1200,
-            height: 675,
+            height: 630,
           },
         ]
       : undefined,
