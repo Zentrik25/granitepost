@@ -12,7 +12,7 @@ import {
   type ActionResult,
   type ArticleFormInput,
 } from '@/lib/admin/articles/validation'
-import { syncArticleTags } from '@/lib/admin/articles/queries'
+import { syncArticleTagsByNames } from '@/lib/admin/articles/queries'
 
 function normalizeBodyHtml(input: unknown): string {
   const value = String(input ?? '').trim()
@@ -35,7 +35,7 @@ function normalizeBodyHtml(input: unknown): string {
 // ── Form data → raw object ────────────────────────────────────────────────────
 
 function parseFormData(formData: FormData): Record<string, unknown> {
-  const tagIds = formData.getAll('tag_ids').filter(Boolean) as string[]
+  const tagNames = (formData.get('tag_names') as string | null) ?? ''
   const breakingRaw = (formData.get('breaking_expires_at') as string | null) ?? ''
   const featuredRaw = (formData.get('featured_rank') as string | null) ?? ''
   const isBreaking = formData.get('is_breaking') === 'on'
@@ -62,7 +62,7 @@ function parseFormData(formData: FormData): Record<string, unknown> {
     breaking_expires_at: breakingRaw ? new Date(breakingRaw).toISOString() : '',
     featured_rank: featuredRaw ? Number(featuredRaw) : null,
     top_story_rank: isTopStory && topStoryRaw ? Number(topStoryRaw) : null,
-    tag_ids: tagIds,
+    tag_names: tagNames,
     author_id: (formData.get('author_id') as string | null) ?? '',
     status: formData.get('status') ?? 'DRAFT',
   }
@@ -168,7 +168,7 @@ export async function createArticleAction(
     return { success: false, error: error?.message ?? 'Failed to create article.' }
   }
 
-  await syncArticleTags(supabase, article.id, parsed.data.tag_ids)
+  await syncArticleTagsByNames(supabase, article.id, parsed.data.tag_names)
 
   if (parsed.data.status === 'PUBLISHED') {
     revalidatePath('/', 'page')
@@ -275,7 +275,7 @@ export async function updateArticleAction(
     return { success: false, error: updateErr.message }
   }
 
-  await syncArticleTags(supabase, id, parsed.data.tag_ids)
+  await syncArticleTagsByNames(supabase, id, parsed.data.tag_names)
 
   // Revalidate affected public paths
   revalidatePath(`/article/${current.slug}`, 'page')

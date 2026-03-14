@@ -3,9 +3,8 @@ import { notFound } from 'next/navigation'
 import { requireAuth } from '@/lib/auth/guards'
 import {
   getArticleForEdit,
-  getArticleTagIds,
+  getArticleTagNames,
   getCategoriesForForm,
-  getTagsForForm,
   getAuthorsForForm,
 } from '@/lib/admin/articles/queries'
 import { updateArticleAction } from '@/app/(admin)/admin/articles/actions'
@@ -21,12 +20,11 @@ interface Props {
 export default async function EditArticlePage({ params }: Props) {
   const { id } = await params
 
-  const [{ user, role }, article, tagIds, categories, tags, authors] = await Promise.all([
+  const [{ user, role }, article, selectedTagNames, categories, authors] = await Promise.all([
     requireAuth(),
     getArticleForEdit(id),
-    getArticleTagIds(id),
+    getArticleTagNames(id),
     getCategoriesForForm(),
-    getTagsForForm(),
     getAuthorsForForm(),
   ])
 
@@ -52,9 +50,8 @@ export default async function EditArticlePage({ params }: Props) {
       <ArticleForm
         saveAction={boundSave}
         article={article}
-        selectedTagIds={tagIds}
+        selectedTagNames={selectedTagNames}
         categories={categories}
-        tags={tags}
         authors={authors}
         currentUserId={user.id}
         userRole={role}
