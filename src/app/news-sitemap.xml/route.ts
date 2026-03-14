@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 
 // Google News sitemap — last 48 hours only
 export const revalidate = 3600
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Zimbabwe News Online'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.thegranite.co.zw'
+const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'The Granite Post'
 
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
   const { data: articles } = await supabase
