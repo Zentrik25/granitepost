@@ -8,12 +8,14 @@ import type { ArticleWithRelations } from '@/types'
 
 interface HeroCarouselClientProps {
   articles: ArticleWithRelations[]
+  /** When true: 16/9 ratio, used inside the desktop split layout */
+  desktop?: boolean
 }
 
 const SWIPE_THRESHOLD = 50
 const SLIDE_INTERVAL = 6000
 
-export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
+export function HeroCarouselClient({ articles, desktop = false }: HeroCarouselClientProps) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
   const touchStartX = useRef<number | null>(null)
@@ -23,7 +25,6 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
     (i: number) => setCurrent(((i % count) + count) % count),
     [count]
   )
-
   const next = useCallback(() => goTo(current + 1), [current, goTo])
   const prev = useCallback(() => goTo(current - 1), [current, goTo])
 
@@ -36,7 +37,6 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
   }
-
   function onTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current === null) return
     const delta = touchStartX.current - e.changedTouches[0].clientX
@@ -50,7 +50,7 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
   return (
     <div
       className="relative w-full overflow-hidden bg-gray-950"
-      style={{ aspectRatio: '21/9' }}
+      style={{ aspectRatio: desktop ? '16/9' : '21/9' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -74,7 +74,7 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
               fill
               className="object-cover"
               priority={i === 0}
-              sizes="100vw"
+              sizes={desktop ? '66vw' : '100vw'}
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
@@ -98,9 +98,7 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
           {articles.map((_, i) => (
             <div key={i} className="flex-1 overflow-hidden bg-white/20">
               <div
-                className={`h-full bg-amber-400 transition-none ${
-                  i === current ? 'animate-progress' : i < current ? 'w-full' : 'w-0'
-                }`}
+                className={`h-full bg-amber-400 ${i === current ? 'animate-progress' : i < current ? 'w-full' : 'w-0'}`}
                 style={i === current && !paused ? { animationDuration: `${SLIDE_INTERVAL}ms` } : {}}
               />
             </div>
@@ -112,15 +110,15 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
       {article.category && (
         <Link
           href={`/category/${article.category.slug}`}
-          className="absolute left-4 top-5 z-30 inline-flex items-center rounded-full bg-amber-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow transition-colors hover:bg-amber-400 md:px-4 md:text-xs"
+          className="absolute left-4 top-5 z-30 inline-flex items-center rounded-full bg-amber-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow transition-colors hover:bg-amber-400"
         >
           {article.category.name}
         </Link>
       )}
 
       {/* Text content */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 p-4 md:p-8 lg:p-12 lg:max-w-4xl">
-        <h2 className="mb-2 text-xl font-black leading-tight text-white drop-shadow-sm md:text-3xl lg:text-4xl xl:text-5xl">
+      <div className="absolute bottom-0 left-0 right-0 z-30 p-4 md:p-6">
+        <h2 className="mb-2 text-xl font-black leading-tight text-white drop-shadow-sm md:text-2xl lg:text-3xl">
           <Link
             href={`/article/${article.slug}`}
             className="hover:underline underline-offset-2 decoration-white/40"
@@ -130,12 +128,12 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
         </h2>
 
         {article.excerpt && (
-          <p className="mb-3 hidden line-clamp-2 text-sm leading-relaxed text-white/70 md:block lg:text-base">
+          <p className="mb-2 hidden line-clamp-2 text-sm leading-relaxed text-white/70 md:block">
             {article.excerpt}
           </p>
         )}
 
-        <p className="text-xs text-white/55 md:text-sm">
+        <p className="text-xs text-white/55">
           {article.author?.full_name && (
             <span className="font-medium text-white/80">
               By {article.author.full_name} ·{' '}
@@ -153,21 +151,20 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
           <button
             type="button"
             onClick={prev}
-            className="absolute left-3 top-1/2 z-40 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:h-12 md:w-12"
+            className="absolute left-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Previous story"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-4 w-4" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-
           <button
             type="button"
             onClick={next}
-            className="absolute right-3 top-1/2 z-40 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:h-12 md:w-12"
+            className="absolute right-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Next story"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-4 w-4" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
             </svg>
           </button>
@@ -176,16 +173,14 @@ export function HeroCarouselClient({ articles }: HeroCarouselClientProps) {
 
       {/* Dot indicators */}
       {count > 1 && (
-        <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 md:bottom-8 md:right-8">
+        <div className="absolute bottom-3 right-3 z-40 flex items-center gap-1.5">
           {articles.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => goTo(i)}
               className={`rounded-full shadow transition-all duration-300 focus:outline-none ${
-                i === current
-                  ? 'h-2 w-6 bg-amber-400'
-                  : 'h-2 w-2 bg-white/40 hover:bg-white/70'
+                i === current ? 'h-2 w-5 bg-amber-400' : 'h-2 w-2 bg-white/40 hover:bg-white/70'
               }`}
               aria-label={`Go to story ${i + 1}`}
               aria-current={i === current ? 'true' : undefined}
