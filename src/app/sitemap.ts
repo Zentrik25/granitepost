@@ -1,12 +1,12 @@
 import type { MetadataRoute } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 
-export const revalidate = 3600 // Regenerate every hour
+export const revalidate = 3600
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.thegranite.co.zw'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   const [articles, categories, tags] = await Promise.all([
     supabase
@@ -15,23 +15,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq('status', 'PUBLISHED')
       .order('published_at', { ascending: false })
       .limit(1000),
-    supabase.from('categories').select('slug, updated_at'),
+    supabase.from('categories').select('slug, updated_at').eq('is_active', true),
     supabase.from('tags').select('slug, created_at'),
   ])
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/search`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.3,
-    },
+    { url: siteUrl, lastModified: new Date(), changeFrequency: 'hourly', priority: 1 },
+    { url: `${siteUrl}/search`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.3 },
   ]
 
   const articleRoutes: MetadataRoute.Sitemap = (articles.data ?? []).map((a) => ({
