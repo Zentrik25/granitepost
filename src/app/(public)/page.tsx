@@ -167,7 +167,9 @@ export default async function HomePage() {
 
       <BreakingTicker articles={breaking} />
 
-      <HeroSection articles={heroSlides} />
+      <div className="mx-auto max-w-7xl px-4 pt-6">
+        <HeroSection articles={heroSlides} />
+      </div>
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 py-10">
         {filteredTopStories.length > 0 && (
