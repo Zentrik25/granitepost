@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { Database } from '@/types/database'
 import type { ActionResult } from '@/lib/admin/articles/validation'
-import type { CategoryOption, AuthorOption } from '@/lib/admin/articles/queries'
+import type { CategoryOption, AuthorOption, TopStorySlot } from '@/lib/admin/articles/queries'
 
 const RichTextEditor = dynamic(
   () => import('./RichTextEditor').then((m) => m.RichTextEditor),
@@ -29,6 +29,7 @@ interface Props {
   selectedTagNames?: string
   categories: CategoryOption[]
   authors: AuthorOption[]
+  topStorySlots?: TopStorySlot[]
   currentUserId: string
   userRole: string
   mode: 'create' | 'edit'
@@ -57,6 +58,7 @@ export function ArticleForm({
   selectedTagNames = '',
   categories,
   authors,
+  topStorySlots = [],
   currentUserId,
   userRole,
   mode,
@@ -246,7 +248,13 @@ export function ArticleForm({
                 defaultValue={article?.top_story_rank ?? 1}
                 className="w-32 border border-brand-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
               >
-                {[1, 2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>Slot {n}</option>)}
+                {(topStorySlots.length > 0 ? topStorySlots : [1,2,3,4,5,6].map(r => ({ rank: r, articleId: null, title: null }))).map((slot) => (
+                <option key={slot.rank} value={slot.rank}>
+                  {slot.articleId
+                    ? 'Slot ' + slot.rank + ' — ' + (slot.title ? slot.title.slice(0, 38) + (slot.title.length > 38 ? '…' : '') : 'Occupied')
+                    : 'Slot ' + slot.rank + ' — Open'}
+                </option>
+              ))}
               </select>
               <FieldError errors={fe?.top_story_rank} />
             </div>
