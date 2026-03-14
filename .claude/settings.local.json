@@ -48,7 +48,16 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(npx supabase status)",
       "Bash(npx supabase@2.77.0 status)",
-      "Bash(curl -s \"http://127.0.0.1:54321/rest/v1/articles?select=id,slug,status&slug=eq.iatf-harare-headquarters-zim-at-heart-of-african-trade\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0\")"
+      "Bash(curl -s \"http://127.0.0.1:54321/rest/v1/articles?select=id,slug,status&slug=eq.iatf-harare-headquarters-zim-at-heart-of-african-trade\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0\")",
+      "Bash(grep -n \"selectedTagIds\\\\|TagOption\\\\|tags:\" /c/dev/zimbabwenewsonlne/src/app/\\\\\\(admin\\\\\\)/admin/articles/[id]/page.tsx)",
+      "Bash(grep -n \"selectedTagIds\\\\|tagIds\\\\|tag_ids\\\\|tags\\\\b\" /c/dev/zimbabwenewsonlne/src/app/\\\\\\(admin\\\\\\)/admin/articles/[id]/page.tsx)",
+      "Bash(grep -n \"publish\\\\|Publish\\\\|success\\\\|redirect\" /c/dev/zimbabwenewsonlne/src/app/\\\\\\(admin\\\\\\)/admin/articles/[id]/page.tsx)",
+      "Bash(cat /c/dev/zimbabwenewsonlne/src/app/\\\\\\(admin\\\\\\)/admin/page.tsx)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\dev\\zimbabwenewsonlne\\src\\components\\home\\v2"
     ]
   }
 }
