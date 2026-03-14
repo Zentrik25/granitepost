@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   publishArticleAction,
   archiveArticleAction,
@@ -16,14 +17,15 @@ interface Props {
 const INITIAL: ActionResult = { success: false }
 
 export function ArticleStatusActions({ articleId, currentStatus, role }: Props) {
-  const [publishState, publishAction, isPublishing] = useActionState(
-    publishArticleAction,
-    INITIAL
-  )
-  const [archiveState, archiveAction, isArchiving] = useActionState(
-    archiveArticleAction,
-    INITIAL
-  )
+  const router = useRouter()
+  const [publishState, publishAction, isPublishing] = useActionState(publishArticleAction, INITIAL)
+  const [archiveState, archiveAction, isArchiving] = useActionState(archiveArticleAction, INITIAL)
+
+  useEffect(() => {
+    if (publishState.success) {
+      router.push('/admin/articles')
+    }
+  }, [publishState.success, router])
 
   const showPublish = roleCanPublish(role) && currentStatus !== 'PUBLISHED'
   const showArchive = roleCanArchive(role) && currentStatus !== 'ARCHIVED'
@@ -44,9 +46,6 @@ export function ArticleStatusActions({ articleId, currentStatus, role }: Props) 
           </button>
           {!isPublishing && publishState.error && (
             <span className="text-sm text-red-600">{publishState.error}</span>
-          )}
-          {!isPublishing && publishState.success && (
-            <span className="text-sm text-green-700 font-semibold">Published.</span>
           )}
         </form>
       )}
