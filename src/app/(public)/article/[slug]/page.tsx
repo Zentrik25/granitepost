@@ -188,28 +188,6 @@ export default async function ArticlePage({ params }: Props) {
 
             <BackToHome />
 
-            <nav
-              aria-label="Breadcrumb"
-              className="text-xs text-brand-muted mb-4"
-            >
-              <Link href="/" className="hover:underline">
-                Home
-              </Link>
-
-              {article.category && (
-                <>
-                  <span className="mx-1">/</span>
-
-                  <Link
-                    href={`/category/${article.category.slug}`}
-                    className="hover:underline"
-                  >
-                    {article.category.name}
-                  </Link>
-                </>
-              )}
-            </nav>
-
             {article.category && (
               <CategoryBadge
                 name={article.category.name}
