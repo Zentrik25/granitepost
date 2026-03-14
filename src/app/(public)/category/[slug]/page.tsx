@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ArticleCard } from "@/components/ui/ArticleCard"
 import { Pagination } from "@/components/ui/Pagination"
+import { CategoryPagination } from "@/components/ui/CategoryPagination"
 import { EmptyState } from "@/components/ui/EmptyState"
 import { SubcategoryFilterBar } from "@/components/category/SubcategoryFilterBar"
 import { CategoryBreadcrumb } from "@/components/ui/CategoryBreadcrumb"
@@ -13,47 +14,41 @@ import {
 import { getArticlesByCategory } from "@/lib/queries/articles"
 import type { ArticleWithRelations } from "@/types"
 import { buildBreadcrumbSchema, buildWebPageSchema, toJsonLd } from "@/lib/seo/schema"
+import { SITE_URL, SITE_NAME } from "@/lib/constants"
 
 export const revalidate = 120
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://zimbabwenewsonline.com"
-const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Zimbabwe News Online"
+const siteUrl = SITE_URL
+const siteName = SITE_NAME
 
 interface Props {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ page?: string }>
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10))
+
   const category = await getCategoryBySlug(slug)
   if (!category) return {}
 
-  const isSubcategory = !!category.parent_id
-  const url = `${siteUrl}/category/${slug}`
+  const categoryName = category.name
+  const baseUrl = `${siteUrl}/category/${slug}`
+  const canonicalUrl = page > 1 ? `${baseUrl}?page=${page}` : baseUrl
 
-  let title = category.seo_title ?? category.name
-  let description =
+  const title =
+    category.seo_title ?? `${categoryName} News | ${siteName}`
+  const description =
     category.seo_description ??
-    category.description ??
-    `Latest ${category.name} news from Zimbabwe.`
-
-  if (isSubcategory && category.parent_id) {
-    const parent = await getCategoryById(category.parent_id)
-    if (parent) {
-      title = category.seo_title ?? `${category.name} — ${parent.name}`
-      description =
-        category.seo_description ??
-        category.description ??
-        `${category.name} news and updates from Zimbabwe, in the ${parent.name} section.`
-    }
-  }
+    `Stay up to date with the latest ${categoryName} news from Zimbabwe and across Africa. The Granite Post brings you breaking stories, analysis and in-depth reporting on ${categoryName} — updated around the clock.`
 
   return {
     title,
     description,
-    alternates: { canonical: url },
-    openGraph: { type: "website", url, title, description, siteName },
+    alternates: { canonical: canonicalUrl },
+    openGraph: { type: "website", url: canonicalUrl, title, description, siteName },
     twitter: { card: "summary", title, description },
   }
 }
@@ -162,6 +157,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           page={page}
           hasMore={result.hasMore}
           buildHref={(p) => `/category/${slug}?page=${p}`}
+        />
+
+        <CategoryPagination
+          currentPage={page}
+          totalPages={Math.ceil(result.total / 12)}
+          slug={slug}
         />
       </div>
     </>

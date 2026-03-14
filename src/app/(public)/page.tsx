@@ -24,20 +24,20 @@ import {
   getArticlesByCategory,
 } from '@/lib/db/queries'
 
-import { getSiteSettings } from '@/lib/settings/queries'
+import { SITE_URL, SITE_NAME } from '@/lib/constants'
+import { buildWebSiteSchema, toJsonLd } from '@/lib/seo/schema'
 
 export const revalidate = 300
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings()
-
-  const title = `${settings.site_name} — Breaking News & In-depth Coverage`
-  const description = settings.site_description
+  const title = `${SITE_NAME} — Breaking Zimbabwe News & In-Depth Coverage`
+  const description =
+    'The Granite Post delivers breaking Zimbabwe news, in-depth political reporting, business, sport and technology coverage — trusted by readers at home and across the diaspora.'
 
   return {
     title,
     description,
-    alternates: { canonical: '/' },
+    alternates: { canonical: SITE_URL },
     openGraph: {
       title,
       description,
@@ -57,17 +57,17 @@ const jsonLd = (siteName: string, siteDescription: string) => ({
   '@graph': [
     {
       '@type': 'WebPage',
-      '@id': '/#webpage',
-      url: '/',
+      '@id': `${SITE_URL}/#webpage`,
+      url: SITE_URL,
       name: `${siteName} — Breaking News`,
       description: siteDescription,
-      inLanguage: 'en',
+      inLanguage: 'en-ZW',
     },
     {
       '@type': 'Organization',
-      '@id': '/#organization',
+      '@id': `${SITE_URL}/#organization`,
       name: siteName,
-      url: '/',
+      url: SITE_URL,
     },
   ],
 })
@@ -83,7 +83,6 @@ export default async function HomePage() {
     opinionResult,
     sportsResult,
     businessResult,
-    settings,
   ] = await Promise.all([
     getBreakingNews(),
     getFeaturedArticles(4),
@@ -94,7 +93,6 @@ export default async function HomePage() {
     getArticlesByCategory('opinion', 1, 3),
     getArticlesByCategory('sport', 1, 5),
     getArticlesByCategory('business', 1, 5),
-    getSiteSettings(),
   ])
 
   const usedIds = new Set<string>()
@@ -143,13 +141,20 @@ export default async function HomePage() {
   const latestUpdates = latestFeedRaw.slice(0, 7)
   const latestNews = latestFeedRaw.slice(7)
 
-  const ld = jsonLd(settings.site_name, settings.site_description)
+  const description =
+    'The Granite Post delivers breaking Zimbabwe news, in-depth political reporting, business, sport and technology coverage — trusted by readers at home and across the diaspora.'
+  const ld = jsonLd(SITE_NAME, description)
+  const websiteSchema = buildWebSiteSchema()
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLd(websiteSchema) }}
       />
 
       <BreakingTicker articles={breaking} />

@@ -3,6 +3,30 @@
  * Pure functions — no server-only imports, safe to call from any Server Component.
  */
 
+import { SITE_URL, SITE_NAME } from '@/lib/constants'
+
+// ── WebSite ───────────────────────────────────────────────────────────────────
+
+export function buildWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: SITE_NAME,
+    description: 'Breaking Zimbabwe news and in-depth coverage from The Granite Post',
+    inLanguage: 'en-ZW',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+}
+
 // ── Breadcrumb ────────────────────────────────────────────────────────────────
 
 export interface BreadcrumbItem {
