@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://zimbabwenewsonline.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.thegranite.co.zw'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/403'],
+        disallow: ['/admin/', '/403', '/search'],
       },
     ],
     sitemap: [
