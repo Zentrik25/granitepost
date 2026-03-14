@@ -49,8 +49,7 @@ export function HeroCarouselClient({ articles, desktop = false }: HeroCarouselCl
 
   return (
     <div
-      className="relative w-full overflow-hidden bg-gray-950"
-      style={{ aspectRatio: desktop ? '16/9' : '21/9' }}
+      className={`relative w-full overflow-hidden bg-gray-950 ${desktop ? 'aspect-[4/3]' : 'aspect-[16/9]'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
