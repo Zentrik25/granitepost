@@ -1,64 +1,18 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { SectionDivider } from '@/components/ui/SectionDivider'
 import { relativeTime } from '@/lib/utils/slug'
+import { ArticleCard } from '@/components/ui/ArticleCard'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 import type { ArticleWithRelations } from '@/types'
 
 interface Props {
   articles: ArticleWithRelations[]
 }
 
-/* Lead story */
-
+/** Lead card — same shell as EditorialSection LeadCard, green accent */
 function SportsLeadCard({ article }: { article: ArticleWithRelations }) {
   return (
-    <article className="group relative overflow-hidden rounded-lg">
-      <Link
-        href={`/article/${article.slug}`}
-        className="absolute inset-0 z-10"
-        aria-label={article.title}
-        tabIndex={-1}
-      />
-
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-gray-100">
-        {article.hero_image_url ? (
-          <Image
-            src={article.hero_image_url}
-            alt={article.hero_image_alt ?? article.title}
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-            sizes="(max-width:768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-green-700" />
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-        <div className="absolute bottom-0 left-0 right-0 z-20 p-3">
-          <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-white">
-            {article.title}
-          </h3>
-
-          {article.published_at && (
-            <time
-              dateTime={article.published_at}
-              className="mt-1 block text-[11px] text-white/70"
-            >
-              {relativeTime(article.published_at)}
-            </time>
-          )}
-        </div>
-      </div>
-    </article>
-  )
-}
-
-/* Small stories */
-
-function SportsStoryCard({ article }: { article: ArticleWithRelations }) {
-  return (
-    <article className="group relative flex items-start gap-3 border-b border-gray-100 py-3 last:border-0">
+    <article className="relative group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
       <Link
         href={`/article/${article.slug}`}
         className="absolute inset-0 z-0"
@@ -66,45 +20,56 @@ function SportsStoryCard({ article }: { article: ArticleWithRelations }) {
         tabIndex={-1}
       />
 
-      <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-md bg-gray-100">
+      <div className="relative aspect-[16/9] w-full flex-shrink-0 overflow-hidden">
         {article.hero_image_url ? (
           <Image
             src={article.hero_image_url}
             alt={article.hero_image_alt ?? article.title}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes="96px"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-green-700" />
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 to-green-700" />
         )}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300 pointer-events-none" />
       </div>
 
-      <div className="min-w-0 flex-1">
-        <h4 className="line-clamp-2 text-[13px] font-semibold leading-snug text-gray-900 transition-colors duration-150 group-hover:text-green-700">
-          {article.title}
-        </h4>
-
-        {article.published_at && (
-          <time
-            dateTime={article.published_at}
-            className="mt-1 block text-[11px] text-gray-500"
+      <div className="relative z-10 flex flex-col gap-2 p-4">
+        <h3 className="line-clamp-3 text-[15px] font-bold leading-snug">
+          <Link
+            href={`/article/${article.slug}`}
+            className="text-gray-900 transition-colors duration-150 hover:text-green-800"
           >
-            {relativeTime(article.published_at)}
-          </time>
+            {article.title}
+          </Link>
+        </h3>
+
+        {article.excerpt && (
+          <p className="hidden line-clamp-2 text-sm leading-relaxed text-gray-500 md:block">
+            {article.excerpt}
+          </p>
         )}
+
+        <p className="mt-auto border-t border-gray-100 pt-2 text-[11px] text-gray-400">
+          {article.author?.full_name && (
+            <span className="font-medium text-gray-500">
+              By {article.author.full_name} ·{' '}
+            </span>
+          )}
+          <time dateTime={article.published_at ?? undefined}>
+            {relativeTime(article.published_at ?? null)}
+          </time>
+        </p>
       </div>
     </article>
   )
 }
 
-/* Main section */
-
 export function SportsSection({ articles }: Props) {
   if (!articles?.length) return null
 
-  const limited = articles.slice(0, 5)
-  const [lead, ...rest] = limited
+  const [lead, ...rest] = articles.slice(0, 5)
 
   return (
     <section aria-label="Sport">
@@ -126,9 +91,9 @@ export function SportsSection({ articles }: Props) {
         {lead && <SportsLeadCard article={lead} />}
 
         {rest.length > 0 && (
-          <div>
-            {rest.slice(0, 4).map((article) => (
-              <SportsStoryCard key={article.id} article={article} />
+          <div className="space-y-3">
+            {rest.map((article) => (
+              <ArticleCard key={article.id} article={article} variant="compact" />
             ))}
           </div>
         )}
