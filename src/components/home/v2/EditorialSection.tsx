@@ -1,6 +1,4 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import { relativeTime } from '@/lib/utils/slug'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import { SectionDivider } from '@/components/ui/SectionDivider'
 import type { Category, ArticleWithRelations } from '@/types'
@@ -14,51 +12,6 @@ interface EditorialSectionProps {
   blocks: EditorialBlock[]
 }
 
-/** Lead card — full-width image on top, text below, card shell.
- *  h-full so it fills its CSS subgrid row and stays equal across columns. */
-function LeadCard({ article }: { article: ArticleWithRelations }) {
-  return (
-    <article className="relative group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
-      <Link
-        href={`/article/${article.slug}`}
-        className="absolute inset-0 z-0"
-        aria-label={article.title}
-        tabIndex={-1}
-      />
-
-      <div className="relative aspect-[16/10] w-full flex-shrink-0 overflow-hidden">
-        {article.hero_image_url ? (
-          <Image
-            src={article.hero_image_url}
-            alt={article.hero_image_alt ?? article.title}
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
-        )}
-      </div>
-
-      <div className="relative z-10 flex flex-1 flex-col gap-1.5 p-3">
-        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug">
-          <Link
-            href={`/article/${article.slug}`}
-            className="text-gray-900 transition-colors duration-150 hover:text-amber-800"
-          >
-            {article.title}
-          </Link>
-        </h3>
-
-        <p className="mt-auto border-t border-gray-100 pt-1.5 text-[11px] text-gray-400">
-          <time dateTime={article.published_at ?? undefined}>
-            {relativeTime(article.published_at ?? null)}
-          </time>
-        </p>
-      </div>
-    </article>
-  )
-}
 
 /**
  * Each block renders exactly 5 direct children:
@@ -100,8 +53,8 @@ function CategoryBlock({ block }: { block: EditorialBlock }) {
         </Link>
       </div>
 
-      {/* Row 2 — lead card (h-full fills its equal-height subgrid row) */}
-      <LeadCard article={lead} />
+      {/* Row 2 — lead card: identical design to Top Stories cards */}
+      <ArticleCard article={lead} />
 
       {/* Rows 3-5 — one compact card per row so CSS grid equalises them */}
       {compact.map((article, i) =>
