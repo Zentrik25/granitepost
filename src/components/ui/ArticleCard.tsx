@@ -48,7 +48,7 @@ export function ArticleCard({
               />
             </div>
           )}
-          <h3 className="text-[13px] font-semibold leading-snug line-clamp-2">
+          <h3 className="text-[13px] font-semibold leading-snug line-clamp-2 min-h-[2.25rem]">
             <Link
               href={`/article/${article.slug}`}
               className="text-gray-900 hover:text-amber-800 transition-colors duration-150"
