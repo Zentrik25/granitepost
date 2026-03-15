@@ -95,7 +95,7 @@ export default async function HomePage() {
     getTopStories(18),
     getMostReadArticles(6),
     getTrendingArticles(6),
-    getCategoryBlocks(4, 5, ['sport', 'business', 'opinion']),
+    getCategoryBlocks(7, 5, ['sport', 'business', 'opinion']),
     getArticlesByCategory('opinion', 1, 3),
     getArticlesByCategory('sport', 1, 5),
     getArticlesByCategory('business', 1, 5),
