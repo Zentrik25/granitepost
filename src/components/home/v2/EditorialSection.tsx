@@ -53,8 +53,10 @@ function CategoryBlock({ block }: { block: EditorialBlock }) {
         </Link>
       </div>
 
-      {/* Row 2 — lead card: identical design to Top Stories cards */}
-      <ArticleCard article={lead} />
+      {/* Row 2 — lead card: same design as Top Stories, title capped at 2 lines */}
+      <div className="[&_h3]:line-clamp-2">
+        <ArticleCard article={lead} />
+      </div>
 
       {/* Rows 3-5 — one compact card per row so CSS grid equalises them */}
       {compact.map((article, i) =>
