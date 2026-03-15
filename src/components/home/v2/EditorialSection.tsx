@@ -26,7 +26,7 @@ function LeadCard({ article }: { article: ArticleWithRelations }) {
         tabIndex={-1}
       />
 
-      <div className="relative aspect-[16/9] w-full flex-shrink-0 overflow-hidden">
+      <div className="relative aspect-[16/10] w-full flex-shrink-0 overflow-hidden">
         {article.hero_image_url ? (
           <Image
             src={article.hero_image_url}
@@ -40,8 +40,8 @@ function LeadCard({ article }: { article: ArticleWithRelations }) {
         )}
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-3 text-[15px] font-bold leading-snug">
+      <div className="relative z-10 flex flex-1 flex-col gap-1.5 p-3">
+        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug">
           <Link
             href={`/article/${article.slug}`}
             className="text-gray-900 transition-colors duration-150 hover:text-amber-800"
@@ -50,12 +50,7 @@ function LeadCard({ article }: { article: ArticleWithRelations }) {
           </Link>
         </h3>
 
-        {/* Always reserve 2-line excerpt space so all lead cards have equal text area */}
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-gray-500">
-          {article.excerpt ?? ''}
-        </p>
-
-        <p className="mt-auto border-t border-gray-100 pt-2 text-[11px] text-gray-400">
+        <p className="mt-auto border-t border-gray-100 pt-1.5 text-[11px] text-gray-400">
           <time dateTime={article.published_at ?? undefined}>
             {relativeTime(article.published_at ?? null)}
           </time>
