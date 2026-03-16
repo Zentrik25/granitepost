@@ -186,16 +186,16 @@ export default async function ArticlePage({ params }: Props) {
 
           <article className="lg:col-span-3">
 
-            <BackToHome />
-
-            {article.category && (
-              <CategoryBadge
-                name={article.category.name}
-                href={`/category/${article.category.slug}`}
-                size="md"
-                className="mb-3"
-              />
-            )}
+            <div className="flex flex-col items-start gap-2 mb-3">
+              <BackToHome />
+              {article.category && (
+                <CategoryBadge
+                  name={article.category.name}
+                  href={`/category/${article.category.slug}`}
+                  size="md"
+                />
+              )}
+            </div>
 
             <h1 className="text-2xl md:text-4xl font-black leading-tight mb-4">
               {article.title}
