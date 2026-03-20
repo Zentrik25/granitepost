@@ -63,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={playfair.variable}>
       <head>
+        <meta name="facebook-domain-verification" content="pjpcshw15rnyrh3iy8uixf9btdjmb0" />
         <link rel="preconnect" href="https://ausnrhlgzslpwvzywwba.supabase.co" />
         <link rel="dns-prefetch" href="https://ausnrhlgzslpwvzywwba.supabase.co" />
       </head>
