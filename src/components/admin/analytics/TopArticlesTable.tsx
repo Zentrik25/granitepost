@@ -44,7 +44,7 @@ export function TopArticlesTable({ articles, label = 'Top Articles' }: Props) {
                 </td>
                 <td className="px-5 py-3.5 text-gray-400 hidden md:table-cell whitespace-nowrap">
                   {row.published_at
-                    ? new Date(row.published_at).toLocaleDateString('en-GB')
+                    ? new Date(row.published_at).toLocaleDateString('en-GB', { timeZone: 'Africa/Harare' })
                     : <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-5 py-3.5 text-right font-bold tabular-nums text-gray-800">

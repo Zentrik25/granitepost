@@ -93,7 +93,7 @@ export default async function AdminNewsletterPage({ searchParams }: Props) {
                   )}
                 </td>
                 <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
-                  {new Date(sub.subscribed_at).toLocaleDateString('en-GB')}
+                  {new Date(sub.subscribed_at).toLocaleDateString('en-GB', { timeZone: 'Africa/Harare' })}
                 </td>
               </tr>
             ))}

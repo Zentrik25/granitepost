@@ -105,6 +105,7 @@ export default async function AboutPage() {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
+                timeZone: 'Africa/Harare',
               })}
             </time>
           </>

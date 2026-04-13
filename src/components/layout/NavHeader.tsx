@@ -39,6 +39,7 @@ function getTodayLabel() {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    timeZone: 'Africa/Harare',
   })
 }
 

@@ -13,6 +13,7 @@ export function formatDate(dateString: string | null): string {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'Africa/Harare',
   })
 }
 

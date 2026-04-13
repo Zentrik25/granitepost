@@ -68,7 +68,7 @@ export default async function AdminSettingsPagesPage() {
             const label = PAGE_LABELS[page.slug] ?? page.title
             const desc  = PAGE_DESC[page.slug] ?? ''
             const updatedAt = new Date(page.updated_at).toLocaleDateString('en-GB', {
-              day: 'numeric', month: 'short', year: 'numeric',
+              day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Harare',
             })
             return (
               <li

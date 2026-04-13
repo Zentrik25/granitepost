@@ -92,6 +92,7 @@ export default async function SiteStaticPage({ params }: Props) {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
+            timeZone: 'Africa/Harare',
           })}
         </time>
       </footer>

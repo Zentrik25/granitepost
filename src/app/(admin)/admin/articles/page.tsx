@@ -73,7 +73,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                   </td>
                   <td className="px-5 py-3.5 text-brand-muted text-xs hidden md:table-cell whitespace-nowrap">
                     {article.published_at
-                      ? new Date(article.published_at).toLocaleDateString('en-GB')
+                      ? new Date(article.published_at).toLocaleDateString('en-GB', { timeZone: 'Africa/Harare' })
                       : <span className="text-brand-border">—</span>}
                   </td>
                   <td className="px-5 py-3.5 text-right">

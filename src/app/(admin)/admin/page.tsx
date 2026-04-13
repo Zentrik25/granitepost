@@ -150,7 +150,7 @@ export default async function AdminDashboard() {
                   <AdminStatusBadge status={article.status} />
                 </td>
                 <td className="px-5 py-3.5 text-brand-muted text-xs hidden md:table-cell">
-                  {new Date(article.updated_at).toLocaleDateString('en-GB')}
+                  {new Date(article.updated_at).toLocaleDateString('en-GB', { timeZone: 'Africa/Harare' })}
                 </td>
                 <td className="px-5 py-3.5 text-right">
                   <Link href={`/admin/articles/${article.id}`} className="text-xs font-semibold text-brand-ink hover:underline">
